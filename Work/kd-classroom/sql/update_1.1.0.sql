@@ -1,0 +1,40 @@
+CREATE TABLE `exercise_info` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '习题ID',
+	`teacher_id` BIGINT(20) NOT NULL DEFAULT '0' COMMENT '创建人ID',
+	`type` TINYINT(10) NOT NULL COMMENT '习题类型（1.选择题 2.判断题 3.填空题 4.主观题）',
+	`content` VARCHAR(1024) NOT NULL COMMENT '习题内容',
+	`content_url` VARCHAR(512) NOT NULL COMMENT '习题图片地址',
+	`analyze` VARCHAR(512) NULL DEFAULT NULL COMMENT '习题分析内容',
+	`analyze_url` VARCHAR(512) NULL DEFAULT NULL COMMENT '习题分析图片地址',
+	`answer` VARCHAR(512) NOT NULL COMMENT '习题答案',
+	`answer_num` TINYINT(10) NULL DEFAULT NULL COMMENT '习题答案数据',
+	`create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`update_time` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+	`del_flag` BIT(1) NOT NULL DEFAULT b'0' COMMENT '是否删除（0-否 1-是）',
+	PRIMARY KEY (`id`)
+)
+COMMENT='练习题信息表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=100000
+;
+
+
+CREATE TABLE `package_exercise` (
+	`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '包与习题关系表ID',
+	`package_class_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'package_class表id',
+	`exercise_id` BIGINT(20) UNSIGNED NOT NULL COMMENT '习题ID',
+	`status` TINYINT(3) UNSIGNED NULL DEFAULT '0' COMMENT '该资源在该班级的状态，0-未开始，1-已结束',
+	`remark` VARCHAR(256) NULL DEFAULT NULL COMMENT '预留',
+	`create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`update_time` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+	`del_flag` BIT(1) NOT NULL DEFAULT b'0' COMMENT '1-删除  0-未删除',
+	PRIMARY KEY (`id`)
+)
+COMMENT='包与习题关系表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=30
+;
+
+alter table student add index key_class_id(class_id) USING BTREE;

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.UnitTestExercisesMapper" >
+  <resultMap id="BaseResultMap" type="com.booksroo.classroom.common.domain.UnitTestExercises" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="unit_test_id" property="unitTestId" jdbcType="BIGINT" />
+    <result column="exercises_id" property="exercisesId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    id, unit_test_id, exercises_id, create_time, update_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.booksroo.classroom.common.domain.UnitTestExercisesCriteria" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from unit_test_exercises
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != 0 " >
+       limit ${start} , ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from unit_test_exercises
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    delete from unit_test_exercises
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.booksroo.classroom.common.domain.UnitTestExercisesCriteria" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    delete from unit_test_exercises
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.booksroo.classroom.common.domain.UnitTestExercises" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into unit_test_exercises (id, unit_test_id, exercises_id, 
+      create_time, update_time)
+    values (#{id,jdbcType=BIGINT}, #{unitTestId,jdbcType=BIGINT}, #{exercisesId,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.booksroo.classroom.common.domain.UnitTestExercises" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into unit_test_exercises
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="unitTestId != null" >
+        unit_test_id,
+      </if>
+      <if test="exercisesId != null" >
+        exercises_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="unitTestId != null" >
+        #{unitTestId,jdbcType=BIGINT},
+      </if>
+      <if test="exercisesId != null" >
+        #{exercisesId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.booksroo.classroom.common.domain.UnitTestExercisesCriteria" resultType="java.lang.Integer" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select count(*) from unit_test_exercises
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update unit_test_exercises
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.unitTestId != null" >
+        unit_test_id = #{record.unitTestId,jdbcType=BIGINT},
+      </if>
+      <if test="record.exercisesId != null" >
+        exercises_id = #{record.exercisesId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update unit_test_exercises
+    set id = #{record.id,jdbcType=BIGINT},
+      unit_test_id = #{record.unitTestId,jdbcType=BIGINT},
+      exercises_id = #{record.exercisesId,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.booksroo.classroom.common.domain.UnitTestExercises" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update unit_test_exercises
+    <set >
+      <if test="unitTestId != null" >
+        unit_test_id = #{unitTestId,jdbcType=BIGINT},
+      </if>
+      <if test="exercisesId != null" >
+        exercises_id = #{exercisesId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.booksroo.classroom.common.domain.UnitTestExercises" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update unit_test_exercises
+    set unit_test_id = #{unitTestId,jdbcType=BIGINT},
+      exercises_id = #{exercisesId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StudentCollectNotesMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="studentId != null">
+            and student_id = #{studentId}
+        </if>
+        <if test="packageClassId != null">
+            and package_class_id = #{packageClassId}
+        </if>
+        <if test="resourceId != null">
+            and resource_id = #{resourceId}
+        </if>
+        <if test="resourceIds != null">
+            and resource_id in
+            <foreach collection="resourceIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="subjectId != null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.StudentCollectQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from student_collect_notes where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.StudentCollectQuery"
+            resultType="java.lang.Integer">
+        select count(distinct resource_id)
+        from student_collect_notes where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <update id="delCollected" parameterType="com.booksroo.classroom.common.domain.StudentCollectNotes">
+        update student_collect_notes set del_flag = #{delFlag,jdbcType=BIT}
+        where student_id = #{studentId,jdbcType=BIGINT} and package_class_id=#{packageClassId} and resource_id=#{resourceId} and subject_id=#{subjectId}
+    </update>
+</mapper>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.ClassMapper" >
+  <resultMap id="BaseResultMap" type="com.booksroo.classroom.common.domain.ClassDomain" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="school_id" property="schoolId" jdbcType="BIGINT" />
+    <result column="grade" property="grade" jdbcType="TINYINT" />
+    <result column="class_no" property="classNo" jdbcType="TINYINT" />
+    <result column="student_num" property="studentNum" jdbcType="SMALLINT" />
+    <result column="term_start_time" property="termStartTime" jdbcType="TIMESTAMP" />
+    <result column="term_end_time" property="termEndTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="del_flag" property="delFlag" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    id, school_id, grade, class_no, student_num, term_start_time, term_end_time, create_time,
+    update_time, del_flag
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select
+    <include refid="Base_Column_List" />
+    from class
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    delete from class
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.booksroo.classroom.common.domain.ClassDomain" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into class (id, school_id, grade,
+    class_no, student_num, term_start_time,
+    term_end_time, create_time, update_time,
+    del_flag)
+    values (#{id,jdbcType=BIGINT}, #{schoolId,jdbcType=BIGINT}, #{grade,jdbcType=TINYINT},
+    #{classNo,jdbcType=TINYINT}, #{studentNum,jdbcType=SMALLINT}, #{termStartTime,jdbcType=TIMESTAMP},
+    #{termEndTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+    #{delFlag,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.booksroo.classroom.common.domain.ClassDomain" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into class
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="grade != null" >
+        grade,
+      </if>
+      <if test="classNo != null" >
+        class_no,
+      </if>
+      <if test="studentNum != null" >
+        student_num,
+      </if>
+      <if test="termStartTime != null" >
+        term_start_time,
+      </if>
+      <if test="termEndTime != null" >
+        term_end_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="grade != null" >
+        #{grade,jdbcType=TINYINT},
+      </if>
+      <if test="classNo != null" >
+        #{classNo,jdbcType=TINYINT},
+      </if>
+      <if test="studentNum != null" >
+        #{studentNum,jdbcType=SMALLINT},
+      </if>
+      <if test="termStartTime != null" >
+        #{termStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="termEndTime != null" >
+        #{termEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.booksroo.classroom.common.domain.ClassDomain" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update class
+    <set >
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="grade != null" >
+        grade = #{grade,jdbcType=TINYINT},
+      </if>
+      <if test="classNo != null" >
+        class_no = #{classNo,jdbcType=TINYINT},
+      </if>
+      <if test="studentNum != null" >
+        student_num = #{studentNum,jdbcType=SMALLINT},
+      </if>
+      <if test="termStartTime != null" >
+        term_start_time = #{termStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="termEndTime != null" >
+        term_end_time = #{termEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.booksroo.classroom.common.domain.ClassDomain" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update class
+    set school_id = #{schoolId,jdbcType=BIGINT},
+    grade = #{grade,jdbcType=TINYINT},
+    class_no = #{classNo,jdbcType=TINYINT},
+    student_num = #{studentNum,jdbcType=SMALLINT},
+    term_start_time = #{termStartTime,jdbcType=TIMESTAMP},
+    term_end_time = #{termEndTime,jdbcType=TIMESTAMP},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    update_time = #{updateTime,jdbcType=TIMESTAMP},
+    del_flag = #{delFlag,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

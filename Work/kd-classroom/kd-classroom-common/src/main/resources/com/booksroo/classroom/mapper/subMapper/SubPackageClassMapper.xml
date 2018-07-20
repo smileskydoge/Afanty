@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.PackageClassMapper">
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="classId != null">
+            and teacher_class_id = #{classId}
+        </if>
+        <if test="packageId != null">
+            and package_id = #{packageId}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.PackageInfoQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_class where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="getHistoryList" resultMap="BaseResultMap">
+        select pc.id,pc.package_id,pc.create_time from teacher_class tc,package_class pc where tc.id=pc.teacher_class_id and
+        tc.class_id=#{classId}
+        and tc.subject_id LIKE CONCAT('%',#{subjectId},'%')
+        and pc.stauts=1
+        order by pc.id desc
+        limit ${start},${size}
+    </select>
+
+    <select id="countHistoryList" resultType="java.lang.Integer">
+        select count(1) from teacher_class tc,package_class pc where tc.id=pc.teacher_class_id and
+        tc.class_id=#{classId}
+        and tc.subject_id LIKE CONCAT('%',#{subjectId},'%')
+        and pc.stauts=1
+        order by pc.id desc
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.PackageInfoQuery"
+            resultType="java.lang.Integer">
+        select count(1)
+        from package_class where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <update id="updateByTCIdAndPid" parameterType="com.booksroo.classroom.common.domain.PackageClass">
+        update package_class
+        <set>
+            <if test="delFlag != null">
+                del_flag = #{delFlag,jdbcType=BIT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where teacher_class_id = #{teacherClassId,jdbcType=BIGINT} and package_id = #{packageId,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByTCIdAndPid">
+        delete from package_class
+        where teacher_class_id = #{teacherClassId,jdbcType=BIGINT} and package_id = #{packageId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="updatePackageIdByTCIdAndPid">
+        update package_class set package_id=#{newPackageId}
+        where teacher_class_id = #{teacherClassId,jdbcType=BIGINT} and package_id = #{oldPackageId,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectPCIdByPIdAndCId" parameterType="com.booksroo.classroom.common.domain.PackageClass" resultType="java.lang.Long">
+      select id
+      from  package_class
+      where package_id = #{packageId} and teacher_class_id = #{teacherClassId}
+    </select>
+    <insert id="addPackageClassMapper" parameterType="com.booksroo.classroom.common.domain.PackageClass" >
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into package_class
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="packageId != null" >
+                package_id,
+            </if>
+            <if test="teacherClassId != null" >
+                teacher_class_id,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="delFlag != null" >
+                del_flag,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="updateTime != null" >
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="packageId != null" >
+                #{packageId,jdbcType=BIGINT},
+            </if>
+            <if test="teacherClassId != null" >
+                #{teacherClassId,jdbcType=BIGINT},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="delFlag != null" >
+                #{delFlag,jdbcType=BIT},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null" >
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

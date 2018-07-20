@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StudentCollectExerciseMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="studentId != null">
+            and student_id = #{studentId}
+        </if>
+        <if test="packageClassId != null">
+            and package_class_id = #{packageClassId}
+        </if>
+        <if test="questionIds != null">
+            and exercise_id in
+            <foreach collection="questionIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="questionId != null">
+            and exercise_id = #{questionId}
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.StudentCollectExercisesQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from student_collect_exercise where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.StudentCollectExercisesQuery"
+            resultType="java.lang.Integer">
+        select count(1)
+        from student_collect_exercise where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <update id="delCollect" parameterType="com.booksroo.classroom.common.domain.StudentCollectExercise">
+    update student_collect_exercise
+    set
+    del_flag = 1
+    where student_id = #{studentId} and exercise_id = #{exerciseId}
+  </update>
+</mapper>

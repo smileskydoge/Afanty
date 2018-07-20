@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>登录页</title>
+    <!--<link rel="stylesheet" href="../layui/css/layui.css">-->
+    <link rel="stylesheet" href="/views/assets/layui-v2.3.0/css/layui.css">
+    <!--<link rel="stylesheet" href="../frame/static/css/style.css">-->
+
+</head>
+<body style="background: #666666">
+<div style="padding:20px 40px 15px 50px;margin:10% auto 20px auto;width:500px;background: #FFF">
+    <div class="login-main">
+        <div class="layui-form-item" style="padding-bottom: 10px;">
+            <div class="layui-input-inline" style="width: 450px; padding: 10px;border-bottom: 2px solid #009688;">
+                <h2 style="padding-left: 125px;">口袋课堂管理平台</h2>
+            </div>
+        </div>
+        <form class="layui-form">
+            <div class="layui-input-inline" style="padding-left: 125px;padding-top: 10px;">
+                用户名：<input type="text" name="account" required lay-verify="required" placeholder="用户名"
+                           autocomplete="off"
+                           class="layui-input">
+            </div>
+            <br/>
+            <div class="layui-input-inline" style="padding-left: 125px;padding-top: 10px;">
+                密码： <input type="password" name="password" required lay-verify="required" placeholder="密码"
+                           autocomplete="off"
+                           class="layui-input">
+            </div>
+            <br/>
+            <div class="layui-input-inline login-btn" style="padding-left: 265px;padding-top: 20px;">
+                <button lay-submit lay-filter="login" class="layui-btn layui-btn-sm">登录</button>
+            </div>
+            <hr/>
+            <span style="font-size: 12px;">© booksroo.com - 口袋鼠科技</span>
+            <!--<p><a href="register.html" class="fl">立即注册</a><a href="javascript:;" class="fr">忘记密码？</a></p>-->
+        </form>
+    </div>
+</div>
+
+<script src="/views/assets/layui-v2.3.0/layui.js"></script>
+<script src="/views/assets/js/jquery-1.12.4.min.js"></script>
+<script src="/views/assets/js/jquery.md5.js"></script>
+<script src="/views/assets/js/jquery.cookie.js?v=1"></script>
+
+<script type="text/javascript">
+    layui.use(['form', 'layer', 'jquery'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+        form.on('submit(login)', function (data) {
+            data.field.password = $.md5(data.field.password);
+            $.ajax({
+                url: '/common/toLogin',
+                data: data.field,
+                dataType: 'text',
+                type: 'post',
+                success: function (resp) {
+                    resp = $.parseJSON(resp)
+
+                    if (resp.result === 1) {
+                        var cookieVal = JSON.stringify(resp.data);
+
+                        var date = new Date();
+                        var minutes = 60;
+                        date.setTime(date.getTime() + (minutes * 60 * 1000));
+                        $.cookie('admin_session_user_key', cookieVal, {expires: date, path: '/'});
+
+                        location.href = "/admin/student";
+                    } else {
+                        layer.msg('登录名或密码错误');
+                    }
+                }
+            });
+            return false;
+        })
+
+    });
+</script>
+</body>
+</html>

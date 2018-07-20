@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body>
+<form class="layui-form" style="padding-top: 50px; padding-left: 45px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">学校名称</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="schoolName" required  lay-verify="required" placeholder="请输入学校名称" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">地区</label>
+        <div class="layui-input-block">
+            <input  style="width: 200px;" type="text" name="area"2 placeholder="请输入学校所属地区" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学籍制</label>
+        <div class="layui-input-block">
+            <select style="width: 200px;height: 38px;" id="selectLength" name="educationLength" lay-verify="" lay-ignore>
+                <option value="-1">请选择学籍制</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item" style="padding-left: 135px;">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        $(document).ready(function () {
+            initEducationLength();
+        });
+
+        //初始化学籍制下拉框
+        function initEducationLength(){
+            var educationLengthArray = [{val:1,name:'五年制'},{val:2,name:'六年制'},
+                {val:3,name:'八年制'},{val:4,name:'九年制'},{val:5,name:'初中'},
+                {val:6,name:'高中'},{val:7,name:'十一年制'}, {val:8,name:'十二年制'}]
+
+            for (var i = 0; i < educationLengthArray.length; i++) {
+                var val = educationLengthArray[i].val;
+                var name = educationLengthArray[i].name;
+                $("#selectLength").append('<option value=' + val + '>' + name + '</option>');
+            }
+        }
+
+        form.on('submit(add)',function (data) {
+            if(data.field.educationLength == -1){
+                layer.msg('学籍制为必选项', {icon: 5});
+            }else{
+                $.ajax({
+                    url:'/admin/check/schoolName',
+                    data:{schoolName:data.field.schoolName},
+                    dataType:'json',
+                    type:'post',
+                    success:function (resultData) {
+                        console.log(resultData)
+                        if (resultData.success){
+                            sendAddInfo(data);
+                        }else{
+                            layer.msg(resultData.message);
+                        }
+                    }
+                })
+            }
+            return false;
+        })
+
+        //发送添加学校信息
+        function sendAddInfo(data) {
+            $.ajax({
+                url:'/admin/school/add',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    console.log(data.result)
+                    if (data.result == 1){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }else{
+                        layer.msg('增加错误');
+                    }
+                }
+            })
+        }
+    });
+</script>
+</body>
+</html>

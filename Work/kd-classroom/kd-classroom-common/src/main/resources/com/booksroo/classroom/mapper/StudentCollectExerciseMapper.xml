@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StudentCollectExerciseMapper" >
+  <resultMap id="BaseResultMap" type="com.booksroo.classroom.common.domain.StudentCollectExercise" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="subject_id" property="subjectId" jdbcType="BIGINT" />
+    <result column="student_id" property="studentId" jdbcType="BIGINT" />
+    <result column="package_class_id" property="packageClassId" jdbcType="BIGINT" />
+    <result column="exercise_id" property="exerciseId" jdbcType="BIGINT" />
+    <result column="student_answer" property="studentAnswer" jdbcType="VARCHAR" />
+    <result column="answer_result" property="answerResult" jdbcType="SMALLINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="del_flag" property="delFlag" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    id, subject_id, student_id, package_class_id, exercise_id, student_answer, answer_result, 
+    create_time, update_time, del_flag
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from student_collect_exercise
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    delete from student_collect_exercise
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.booksroo.classroom.common.domain.StudentCollectExercise" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into student_collect_exercise (id, subject_id, student_id, 
+      package_class_id, exercise_id, student_answer, 
+      answer_result, create_time, update_time, 
+      del_flag)
+    values (#{id,jdbcType=BIGINT}, #{subjectId,jdbcType=BIGINT}, #{studentId,jdbcType=BIGINT}, 
+      #{packageClassId,jdbcType=BIGINT}, #{exerciseId,jdbcType=BIGINT}, #{studentAnswer,jdbcType=VARCHAR}, 
+      #{answerResult,jdbcType=SMALLINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{delFlag,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.booksroo.classroom.common.domain.StudentCollectExercise" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into student_collect_exercise
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="subjectId != null" >
+        subject_id,
+      </if>
+      <if test="studentId != null" >
+        student_id,
+      </if>
+      <if test="packageClassId != null" >
+        package_class_id,
+      </if>
+      <if test="exerciseId != null" >
+        exercise_id,
+      </if>
+      <if test="studentAnswer != null" >
+        student_answer,
+      </if>
+      <if test="answerResult != null" >
+        answer_result,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="subjectId != null" >
+        #{subjectId,jdbcType=BIGINT},
+      </if>
+      <if test="studentId != null" >
+        #{studentId,jdbcType=BIGINT},
+      </if>
+      <if test="packageClassId != null" >
+        #{packageClassId,jdbcType=BIGINT},
+      </if>
+      <if test="exerciseId != null" >
+        #{exerciseId,jdbcType=BIGINT},
+      </if>
+      <if test="studentAnswer != null" >
+        #{studentAnswer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerResult != null" >
+        #{answerResult,jdbcType=SMALLINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.booksroo.classroom.common.domain.StudentCollectExercise" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update student_collect_exercise
+    <set >
+      <if test="subjectId != null" >
+        subject_id = #{subjectId,jdbcType=BIGINT},
+      </if>
+      <if test="studentId != null" >
+        student_id = #{studentId,jdbcType=BIGINT},
+      </if>
+      <if test="packageClassId != null" >
+        package_class_id = #{packageClassId,jdbcType=BIGINT},
+      </if>
+      <if test="exerciseId != null" >
+        exercise_id = #{exerciseId,jdbcType=BIGINT},
+      </if>
+      <if test="studentAnswer != null" >
+        student_answer = #{studentAnswer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerResult != null" >
+        answer_result = #{answerResult,jdbcType=SMALLINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.booksroo.classroom.common.domain.StudentCollectExercise" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update student_collect_exercise
+    set subject_id = #{subjectId,jdbcType=BIGINT},
+      student_id = #{studentId,jdbcType=BIGINT},
+      package_class_id = #{packageClassId,jdbcType=BIGINT},
+      exercise_id = #{exerciseId,jdbcType=BIGINT},
+      student_answer = #{studentAnswer,jdbcType=VARCHAR},
+      answer_result = #{answerResult,jdbcType=SMALLINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      del_flag = #{delFlag,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

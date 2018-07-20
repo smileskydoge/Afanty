@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.ResourceClassMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="classId != null">
+            and teacher_class_id = #{classId}
+        </if>
+        <if test="resourceId != null">
+            and resource_id = #{resourceId}
+        </if>
+        <if test="classIds != null">
+            and teacher_class_id in
+            <foreach collection="classIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.ResourceQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from resource_class where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="selectByJoin" parameterType="com.booksroo.classroom.common.query.ResourceQuery"
+            resultMap="BaseResultMap">
+        select rc.id, rc.resource_id, rc.teacher_class_id, rc.create_time,
+        rc.update_time
+        from resource_class rc,file_resources fr where 1=1 and rc.resource_id=fr.id
+        <if test="classId !=null">
+            and rc.teacher_class_id=#{classId}
+        </if>
+        <if test="resourceType !=null">
+            and fr.resource_type=#{resourceType}
+        </if>
+        <if test="resourceId != null">
+            and rc.resource_id = #{resourceId}
+        </if>
+        order by rc.id desc
+        limit ${start},${size}
+    </select>
+
+    <select id="countByJoin" parameterType="com.booksroo.classroom.common.query.ResourceQuery"
+            resultType="java.lang.Integer">
+        select count(distinct rc.resource_id)
+        from resource_class rc,file_resources fr where 1=1 and rc.resource_id=fr.id
+        <if test="classId !=null">
+            and rc.teacher_class_id=#{classId}
+        </if>
+        <if test="resourceType !=null">
+            and fr.resource_type=#{resourceType}
+        </if>
+        <if test="resourceId != null">
+            and rc.resource_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.ResourceQuery" resultType="java.lang.Integer">
+        select count(distinct resource_id)
+        from resource_class where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <update id="updateByTCIdAndRid" parameterType="com.booksroo.classroom.common.domain.ResourceClass">
+        update resource_class
+        <set>
+            <if test="delFlag != null">
+                del_flag = #{delFlag,jdbcType=BIT}
+            </if>
+        </set>
+        where teacher_class_id = #{teacherClassId,jdbcType=BIGINT} and resource_id = #{resourceId,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByTCIdAndRid">
+        delete from resource_class
+        where teacher_class_id = #{teacherClassId,jdbcType=BIGINT} and resource_id = #{resourceId,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByPackageClassId">
+        delete from resource_class
+        where package_class_id = #{packageClassId,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByResourceId">
+        delete from resource_class
+        where resource_id = #{resourceId,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body>
+<div style="padding-top: 25px;padding-left: 65px">
+<form class="layui-form ">
+    <input type="hidden" id="studentId" value="${id}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">学号</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="studentNo" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input  style="width: 200px;" type="text" name="studentName" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">入学时间</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="beginTime" class="layui-input" id="schoolBeginTime" placeholder="yyyy-MM-dd">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;"  type="text" name="age"  placeholder="请输入年龄" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-inline">
+        <label class="layui-form-label">学校</label>
+        <input style="width: 200px;"  type="text" name="schoolName" autocomplete="off" class="layui-input" readonly="readonly">
+    </div>
+    <div class="layui-inline">
+        <select style="width: 200px;height: 38px;" id="selectSchool" name="schoolId" lay-verify="" lay-ignore>
+            <option value="-1">请选择学校</option>
+        </select>
+    </div>
+    <div class="layui-inline" style="padding-top: 15px;">
+        <label class="layui-form-label">班级</label>
+        <input style="width: 200px;"  type="text" name="className" autocomplete="off" class="layui-input" readonly="readonly">
+    </div>
+    <div class="layui-inline" style="padding-top: 15px;">
+        <select style="width: 200px;height: 38px;" id="selectClass"  name="classId" lay-verify="" lay-ignore>
+            <option value="-1">请选择班级</option>
+        </select>
+    </div>
+    <div class="layui-form-item" style="padding-top: 15px;">
+        <label class="layui-form-label">家长手机</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="parentPhone" phone lay-verify="phone|unique" placeholder="请输入手机" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">重置密码</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="password" placeholder="若无需重置请勿填写" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item" style="padding-left: 135px;">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+</div>
+<script src="/views/assets/js/jquery.md5.js"></script>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery','laydate'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        $(document).ready(function () {
+            var studentId = $("#studentId").val()
+            initData(studentId);
+        });
+
+        function initData(Id) {
+            $.ajax({
+                url:'/admin/student/queryStudentById',
+                dataType:'json',
+                type:'post',
+                data:{studentId:Id},
+                success:function (data) {
+                    console.log(data)
+                    if (data.result == 1){
+                        showData(data.data)
+                    }else{
+                        layer.msg('学生信息查询失败');
+                    }
+                }
+            })
+        }
+
+        //展示编辑框数据 初始化
+        function showData(data) {
+            $("input[name='studentNo']").val(data.studentNo);
+            $("input[name='studentName']").val(data.studentName);
+            $("input[name='age']").val(data.age);
+            $("input[name='parentPhone']").val(data.parentPhone);
+            $("input[name='schoolName']").val(data.schoolName);
+            $("input[name='schoolName']").data('schoolId',data.schoolId)
+            $("input[name='className']").val(data.className);
+            $("input[name='className']").data('classId',data.classId)
+            var beginTime = data.beginTime;
+            var initTime = "";
+            if(beginTime !=null ){
+                initTime = new Date(beginTime);
+            }
+
+            laydate.render({
+                elem: '#schoolBeginTime' //指定元素
+                ,value: initTime
+                ,isInitValue: true
+            });
+
+            initSelected();
+        }
+
+        //初始化下拉框
+        function initSelected() {
+            $.ajax({
+                url:'/admin/school/getAllInfo',
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    console.log(data)
+                    if (data.result == 1){
+                        initSchoolInfo(data.data)
+                    }else{
+                        layer.msg('学校列表查询失败');
+                    }
+                }
+            })
+        }
+
+        //初始化学校下拉框
+        function initSchoolInfo(schoolArray){
+            for(var i=0;i<schoolArray.length;i++){
+                var schoolId = schoolArray[i].id;
+                var schoolName = schoolArray[i].schoolName;
+                $("#selectSchool").append('<option value='+schoolId+'>'+schoolName+'</option>');
+            }
+        }
+
+        $("#selectSchool").change(function () {
+            clearClassInfo();
+            var schoolId = $("#selectSchool").val();
+            $.ajax({
+                url:'/admin/class/getClassInfoBySchoolId',
+                type:'POST',
+                dataType:'json',
+                data:{schoolId:schoolId},
+                success:function (data) {
+                    console.log(data)
+                    if (data.result == 1){
+                        initClassInfo(data.data)
+                    }else{
+                        layer.msg('班级列表查询失败');
+                    }
+                }
+            })
+        })
+
+        //清空班级列表
+        function clearClassInfo(){
+            $("#selectClass").children().remove();
+            $("#selectClass").append('<option value=-1>'+'请选择班级'+'</option>');
+        }
+
+        //初始化班级列表
+        function initClassInfo(ClassArray){
+            for(var i=0;i<ClassArray.length;i++){
+                var classId = ClassArray[i].id;
+                var grade = ClassArray[i].grade;
+                var classNo = ClassArray[i].classNo;
+                $("#selectClass").append('<option value='+classId+'>'+grade+'年级'+classNo+'班'+'</option>');
+            }
+        }
+
+
+        form.verify({
+            unique: function(value, item){ //value：表单的值、item：表单的DOM对象
+                console.log(value)
+                var id = $("#studentId").val();
+
+                var msg = 1;
+                $.ajax({
+                    async: false,
+                    url:'/admin/check/student',
+                    data:{parentPhone:value,id:id},
+                    dataType:'json',
+                    type:'post',
+                    success:function (data) {
+                        msg = data.result;
+                    }
+                })
+                if(msg === 0){
+                    return "该手机号码已存在!";
+                }
+            }
+        });
+
+        form.on('submit(add)',function (data) {
+            var selSchool = $("#selectSchool").val();
+            var selClass = $("#selectClass").val();
+            data.field.id = $("#studentId").val();
+            if(selClass!=-1&&selSchool!=-1){
+                data.field.schoolId = selSchool;
+                data.field.classId = selClass;
+            }else{
+                data.field.schoolId = $("input[name='schoolName']").data('schoolId');
+                data.field.classId = $("input[name='className']").data('classId')
+            }
+
+            if(data.field.password!=""&&data.field.password!=null){
+                data.field.password = $.md5(data.field.password);
+            }
+
+            $.ajax({
+                url:'/admin/student/update',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    if (data.result == 1){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }else{
+                        layer.msg('修改错误');
+                    }
+                }
+            })
+            return false;
+        })
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body>
+<form class="layui-form " style="padding-top: 50px;padding-left: 50px;">
+    <div class="layui-form-item" >
+        <label class="layui-form-label">学校</label>
+        <select style="width: 200px;height: 38px;" id="selectSchool" name="schoolId" lay-verify="" lay-ignore>
+            <option value="-1">请选择学校</option>
+        </select>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">年级</label>
+        <div class="layui-input-block">
+            <input  style="width: 200px;" type="text" name="grade" required  lay-verify="required" placeholder="请输入年级" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">班级</label>
+        <div class="layui-input-block">
+            <input  style="width: 200px;" type="text" name="classNo" required  lay-verify="required" placeholder="请输入班级" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 84px">学期开始时间</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="termStartTime" class="layui-input" id="termStartTime" placeholder="yyyy-MM-dd">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 84px">学期结束时间</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="termEndTime" class="layui-input" id="termEndTime" placeholder="yyyy-MM-dd">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery','laydate'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        var endDate= laydate.render({
+            elem: '#termEndTime',//选择器结束时间
+            min:"2000-01-01",//设置min默认最小值
+            done: function(value,date){
+                startDate.config.max={
+                    year:date.year,
+                    month:date.month-1,//关键
+                    date: date.date
+                }
+            }
+        });
+        //日期范围
+        var startDate=laydate.render({
+            elem: '#termStartTime',
+            max:"2099-12-31",//设置一个默认最大值
+            done: function(value, date){
+                endDate.config.min ={
+                    year:date.year,
+                    month:date.month-1, //关键
+                    date: date.date
+                };
+            }
+        });
+
+
+        $(document).ready(function () {
+            $.ajax({
+                url:'/admin/school/getAllInfo',
+                dataType:'text',
+                type:'post',
+                success:function (data) {
+                    var data  = $.parseJSON(data)
+                    if (data.result == 1){
+                        initSchoolInfo(data.data)
+                    }else{
+                        layer.msg('学校列表查询失败');
+                    }
+                }
+            })
+        });
+
+        //初始化学校下拉框
+        function initSchoolInfo(schoolArray){
+            for(var i=0;i<schoolArray.length;i++){
+                var schoolId = schoolArray[i].id;
+                var schoolName = schoolArray[i].schoolName;
+
+                $("#selectSchool").append('<option value='+schoolId+'>'+schoolName+'</option>');
+            }
+        }
+
+        form.on('submit(add)',function (data) {
+            if(data.field.schoolId == -1){
+                layer.msg('学校为必选项', {icon: 5});
+            }else{
+                $.ajax({
+                    url:'/admin/check/class',
+                    data:data.field,
+                    dataType:'json',
+                    type:'post',
+                    success:function (resultData) {
+                        if (resultData.success){
+                            sendAddInfo(data);
+                        }else{
+                            layer.msg(resultData.message);
+                        }
+                    }
+                })
+            }
+            return false;
+        })
+
+        function sendAddInfo(data){
+            $.ajax({
+                url:'/admin/class/add',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    if (data.result == 1){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }else{
+                        layer.msg('增加错误');
+                    }
+                }
+            })
+        }
+
+    });
+</script>
+</body>
+</html>

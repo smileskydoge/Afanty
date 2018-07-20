@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.CheckWeightMapper">
+
+    <sql id="where_check">
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </sql>
+
+
+    <!--学校名查重-->
+    <select id="checkSchoolName" parameterType="com.booksroo.classroom.common.domain.School" resultType="int">
+    select count(*)
+    from school
+    where school_name = #{schoolName}
+    <include refid="where_check"/>
+    </select>
+
+
+    <select id="checkClassNo" parameterType="com.booksroo.classroom.common.domain.ClassDomain" resultType="int">
+    select count(*)
+    from class
+    where school_id = #{schoolId} and grade = #{grade} and class_no = #{classNo}
+    <include refid="where_check"/>
+    </select>
+
+
+    <select id="checkSubjectName" parameterType="com.booksroo.classroom.common.domain.Subject" resultType="int">
+    select count(*)
+    from subject
+    where subject_name = #{subjectName}
+        <include refid="where_check"/>
+    </select>
+
+    <select id="checkSchoolChildNode" parameterType="long" resultType="int">
+    select count(*)
+    from class
+    where school_id = #{schoolId}
+    </select>
+
+    <select id="checkClassStudent" parameterType="long" resultType="int">
+    select count(*)
+    from student
+    where class_id = #{classId}
+    </select>
+
+    <select id="checkClassTeacher" parameterType="long" resultType="int">
+    select count(*)
+    from teacher_class
+    where class_id = #{classId}
+    and del_flag = 0
+    </select>
+
+    <select id="checkSubjectTeacher" parameterType="long" resultType="int">
+    select count(*)
+    from teacher_class
+    where subject_id = #{subjectid}
+    and del_flag = 0
+    </select>
+
+    <select id="queryStudentInfoByUnique" parameterType="com.booksroo.classroom.common.domain.Student" resultType="int">
+    select count(*)
+    from student
+    where parent_phone = #{parentPhone}
+    <include refid="where_check"/>
+    </select>
+
+    <select id="queryTeacherInfoByUnique" parameterType="string" resultType="int">
+    select count(*)
+    from teacher
+    where mobile_no = #{mobileNo}
+    <include refid="where_check"/>
+    </select>
+
+
+    <select id="queryTeacherClassByUnique" parameterType="string" resultType="int">
+        select count(*)
+        from teacher_class
+        where subject_id = #{subjectId}
+        and class_id in
+        <foreach collection="classIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="id != null">
+            and teacher_id != #{id}
+        </if>
+        and del_flag = 0
+    </select>
+
+</mapper>

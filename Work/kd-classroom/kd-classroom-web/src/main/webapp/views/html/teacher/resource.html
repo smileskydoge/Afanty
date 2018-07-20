@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("assets-link.html")
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    #include("teacher/top.html")
+    #include("teacher/left.html")
+
+    <div class="layui-body">
+        <div style="padding: 25px 45px 15px 45px">
+            <div class="layui-tab" lay-filter="tab1">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">资源包列表</li>
+                    <li>PPT</li>
+                    <li>图片</li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+                        <table id="tb-all-package"></table>
+                    </div>
+                    <div class="layui-tab-item">
+                        <table id="tb-all-ppt"></table>
+                    </div>
+                    <div class="layui-tab-item">
+                        <table id="tb-all-img"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    #include("teacher/foot.html")
+</div>
+
+<div class="layui-carousel" id="test10"
+     style="position: absolute; z-index: 19921202; top:0;left: 0;display: none;text-align: center;" lay-filter="test1">
+
+        <span style="padding: 20px;display: block;">
+            <span style="font-weight: bold;">当前页：1</span>&nbsp;&nbsp;&nbsp;&nbsp;<b></b>&nbsp;&nbsp;&nbsp;&nbsp;<a
+                href="javascript:close()"
+                style="font-weight: bold;color:blue">关闭</a>
+        </span>
+    <div carousel-item="">
+    </div>
+</div>
+
+<div id="tb-package-detail-box" style="padding: 0 20px;display: none;">
+    <table id="tb-package-detail"></table>
+    <button type="button" class="layui-btn" id="delListButton" onclick="delList()">
+        批量删除
+    </button>
+</div>
+
+<div id="tb-package-edit-name" style="padding: 20px;display: none;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <input type="text" name="newPackageName" required lay-verify="required" style="border: 1px solid #BBB;"
+                   placeholder="请输入名称" autocomplete="off"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <button style="width: 100%;" class="layui-btn" lay-submit lay-filter="submitEditName">提交</button>
+        </div>
+    </form>
+</div>
+
+<div id="resource-all-box" style="padding: 0 20px;display: none;">
+    <div class="layui-tab" lay-filter="tab2">
+        <ul class="layui-tab-title">
+            <li class="layui-this">全部</li>
+            <li>PPT</li>
+            <li>图片</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <table id="tb-all"></table>
+                <button type="button" class="layui-btn layui-btn-normal" id="submitAddAll" onclick="doAdd('','','')">
+                    批量添加
+                </button>
+            </div>
+            <div class="layui-tab-item">
+                <table id="tb-all-ppt1"></table>
+                <button type="button" class="layui-btn layui-btn-normal" id="submitAddAllPPT" onclick="doAdd('','','')">
+                    批量添加
+                </button>
+            </div>
+            <div class="layui-tab-item">
+                <table id="tb-all-img1"></table>
+                <button type="button" class="layui-btn layui-btn-normal" id="submitAddAllIMG" onclick="doAdd('','','')">
+                    批量添加
+                </button>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="resource-all-pcId" value=""/>
+</div>
+
+<script>
+
+    var classId = getUrlParam().classId;
+    var table;
+
+    layui.use(['upload', 'table', 'carousel', 'form', 'element'], function () {
+
+        table = layui.table;
+
+        loadPackageData('#tb-all-package');
+        loadData('#tb-all-ppt', 1, classId);
+        loadData('#tb-all-img', 2, classId);
+
+        var carousel = layui.carousel;
+        //监听轮播切换事件
+        carousel.on('change(test1)', function (obj) { //test1来源于对应HTML容器的 lay-filter="test1" 属性值
+            var total = $('#test10>span>b').html();
+            total = total.replace(/总页数：/g, '');
+            if (total > 1) {
+                $('#test10>span>span').html('当前页：' + (obj.index + 1));
+            }
+        });
+    });
+
+    function loadData(id, type, cid) {
+        table.render({
+            elem: id
+            , url: rootPath + '/pc/teacher/getResourceList?classId=' + cid + '&resourceType=' + type //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'resourceName', title: '文件名', width: 400, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 130, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="view(' + d.resourceId + ')">查看</button>';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="del(' + d.resourceId + ', \'' + d.packageId + '\')">删除</button>';
+                        return h;
+                    }
+                }
+            ]]
+        });
+    }
+
+    function loadPackageData(id) {
+        table.render({
+            elem: id
+            , url: rootPath + '/pc/teacher/getPackageList?classId=' + classId //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'packageName', title: '资源包名称', width: 400, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 240, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="viewP(' + d.packageClassId + ',\'' + d.packageName + '\')">查看</button>'
+                        h += '<button class="layui-btn layui-btn-sm" onclick="add(' + d.packageClassId + ', \'' + d.packageName + '\')">添加内容</button>';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="editName(' + d.id + ', \'' + d.packageName + '\')">修改名称</button>';
+                        // h += '<button class="layui-btn layui-btn-sm" onclick="delP(' + d.id + ')">删除</button>';
+                        return h;
+                    }
+                }
+            ]]
+        });
+    }
+
+    function viewP(pcId, pname) {
+        $('input[name="resource-all-pcId"]').val(pcId);
+
+        layer.open({
+            title: pname + ' - 文件列表',
+            type: 1,
+            zIndex: 999,
+            area: ['900px', '600px'],
+            content: $('#tb-package-detail-box') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+        loadPackageDetail(pcId);
+    }
+
+    function loadPackageDetail(pcId) {
+        table.render({
+            elem: '#tb-package-detail',
+            // height: 400,
+            // limits: [10],
+            url: rootPath + '/pc/teacher/getResourceList?packageId=' + pcId,
+            page: true,
+            cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'resourceName', title: '文件名', width: 450, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 150, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="view(' + d.resourceId + ',' + pcId + ')">查看</button>';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="del(' + d.resourceId + ',' + pcId + ')">删除</button>';
+                        return h;
+                    }
+                }
+            ]]
+        });
+    }
+
+    function add(packageClassId, name) {
+        $('input[name="resource-all-pcId"]').val(packageClassId);
+
+        layer.open({
+            title: '<b>' + name + '</b> (请选择文件添加到该资源包) ',
+            type: 1,
+            zIndex: 999,
+            area: ['900px', '660px'],
+            content: $('#resource-all-box') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+
+        loadTableAllData(packageClassId, '#tb-all', '');
+        loadTableAllData(packageClassId, '#tb-all-ppt1', 1);
+        loadTableAllData(packageClassId, '#tb-all-img1', 2);
+    }
+
+    function loadTableAllData(packageClassId, id, type) {
+        table.render({
+            elem: id
+            , url: rootPath + '/pc/teacher/getResourceList?needReturnPackageClassId=true&resourceType=' + type//数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'resourceName', title: '文件名', width: 400, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 150, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="view(' + d.resourceId + ')">查看</button>';
+                        if (d.packageId !== undefined && d.packageId != null && d.packageId !== '') {
+                            var arr = d.packageId.split(',');
+                            var flag = $.inArray('' + packageClassId, arr);
+                            // $.each(arr, function (i, obj) {
+                            //     if (obj == packageClassId) flag = true;
+                            //     return false;
+                            // });
+                            if (flag > -1) {
+                                h += '<span style="padding: 0 10px;">已添加</span>';
+                            } else {
+                                h += '<button class="layui-btn layui-btn-normal layui-btn-sm" onclick="doAdd(' + packageClassId + ',' + d.resourceId + ',' + d.resourceType + ')">添加</button>';
+                            }
+                        } else {
+                            h += '<button class="layui-btn layui-btn-normal layui-btn-sm" onclick="doAdd(' + packageClassId + ',' + d.resourceId + ',' + d.resourceType + ')">添加</button>';
+                        }
+                        return h;
+                    }
+                }
+            ]]
+        });
+    }
+
+    function doAdd(pcId, rid, rtype) {
+        if (pcId === undefined || pcId === '') {
+            pcId = $('input[name="resource-all-pcId"]').val();
+        }
+        if (rid === undefined || rid === '') {
+            rid = '';
+            var arr = getSelectItems('tb-all');
+            var arr1 = getSelectItems('tb-all-ppt1');
+            var arr2 = getSelectItems('tb-all-img1');
+            if (arr.length === 0 && arr1.length === 0 && arr2.length === 0) {
+                layer.msg('请先选择文件');
+                return;
+            }
+            if (arr.length > 0) {
+                $.each(arr, function (i, obj) {
+                    rid += ',' + obj.resourceId + '_' + obj.resourceType;
+                });
+            }
+            if (arr1.length > 0) {
+                $.each(arr1, function (i, obj) {
+                    rid += ',' + obj.resourceId + '_' + obj.resourceType;
+                });
+            }
+            if (arr2.length > 0) {
+                $.each(arr2, function (i, obj) {
+                    rid += ',' + obj.resourceId + '_' + obj.resourceType;
+                });
+            }
+        } else {
+            rid = rid + '_' + rtype;
+        }
+
+        $.ajax({
+            url: rootPath + '/pc/teacher/addPackageResource',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                resourceIds: rid,
+                packageClassId: pcId,
+                classId: classId
+            },
+            success: function (resp) {
+                if (isFail(resp)) return;
+                layer.msg('添加成功');
+                loadTableAllData(pcId, '#tb-all', '');
+                loadTableAllData(pcId, '#tb-all-ppt1', 1);
+                loadTableAllData(pcId, '#tb-all-img1', 2);
+            },
+            error: function (resp) {
+                layer.msg('网络异常请重试：' + resp);
+            }
+        });
+    }
+
+    function view(rid, pcId) {
+        var carousel = layui.carousel;
+
+        var param = '';
+        if (pcId !== undefined && pcId != null && pcId !== '') {
+            param = '?packageClassId=' + pcId;
+        }
+        if (classId !== undefined && classId != null && classId !== '') {
+            if (param.indexOf('?') < 0) {
+                param += '?teacherClassId=' + classId;
+            } else {
+                param += '&teacherClassId=' + classId;
+            }
+        }
+        $.ajax({
+            url: rootPath + '/pc/teacher/resourceDetail' + param,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                resourceId: rid
+            },
+            success: function (resp) {
+                if (isFail(resp)) return;
+                var html = '';
+                $('#test10>div').html('');
+                $('#test10>span>b').html('');
+                $('#test10>span>span').html('当前页：1');
+                var arr = resp.data;
+                $.each(arr, function (i, obj) {
+                    html += '<div style="overflow: auto;"><img src="' + obj.content + '" style="max-width: 1000px; max-height: 700px;" /></div>';
+                });
+                $('#test10').show();
+                $('#test10>div').html(html);
+                $('#test10>span>b').html('总页数：' + arr.length);
+                carousel.render({
+                    elem: '#test10', width: '100%', arrow: 'always', anim: 'default',
+                    autoplay: false,
+                    full: true
+                });
+                if (arr.length <= 1) {
+                    $('#test10>span>span').html('');
+                }
+            },
+            error: function (resp) {
+                layer.msg('网络异常请重试：' + resp);
+            }
+        });
+    }
+
+    function delList() {
+        var arr = getSelectItems('tb-package-detail')
+        if (arr.length <= 0) {
+            layer.msg('未选择文件');
+            return;
+        }
+        var pcId = $('input[name="resource-all-pcId"]').val();
+
+        var val = '';
+        $.each(arr, function (i, obj) {
+            val += obj.resourceId + '_' + pcId + ';';
+        });
+
+        del('', pcId, val);
+    }
+
+    function del(rid, pid, concatStr) {
+        if (pid === undefined || pid == null || pid === 'null' || pid === 'undefined') pid = '';
+
+        var val = '';
+        if (concatStr === undefined || concatStr === '' || concatStr == null) {
+            val = rid + '_' + pid;
+        } else {
+            val = concatStr;
+        }
+
+        var confirm = layer.confirm('确定删除吗？删除只对当前班级生效，不影响其它班级', {
+            btn: ['确定', '取消'], //可以无限个按钮
+        }, function (index, layero) {
+            $.ajax({
+                url: rootPath + '/pc/teacher/delResource',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    resourceIds: val,
+                    classId: classId
+                },
+                success: function (resp) {
+                    if (isFail(resp)) return;
+                    layer.msg('删除成功');
+                    loadPackageDetail(pid);
+                    loadData('#tb-all-ppt', 1, classId);
+                    loadData('#tb-all-img', 2, classId);
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+        }, function (index) {
+            layer.close(confirm);
+        });
+    }
+
+    function delP(pid) {
+        var confirm = layer.confirm('确定删除吗？', {
+            btn: ['确定', '取消'], //可以无限个按钮
+        }, function (index, layero) {
+            $.ajax({
+                url: rootPath + '/pc/teacher/delPackage',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    packageIds: pid,
+                    classId: classId
+                },
+                success: function (resp) {
+                    if (isFail(resp)) return;
+                    layer.msg('删除成功');
+                    loadPackageData('#tb-all-package');
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+        }, function (index) {
+            layer.close(confirm);
+        });
+    }
+
+    function editName(pid, name) {
+        $('#tb-package-edit-name input[name="newPackageName"]').val(name);
+
+        var op = layer.open({
+            title: '修改资源包名称',
+            type: 1,
+            area: ['300px', '200px'],
+            content: $('#tb-package-edit-name') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+
+        var form = layui.form;
+        //监听提交
+        form.on('submit(submitEditName)', function (data) {
+            var obj = data.field;
+
+            if (obj.newPackageName === name) {
+                layer.msg('未修改名称');
+                return false;
+            }
+            if (obj.newPackageName.length > 50) {
+                layer.msg('名称不能超过50个字');
+                return false;
+            }
+            $.ajax({
+                url: rootPath + '/pc/teacher/updatePackageName',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    packageId: pid,
+                    classId: classId,
+                    packageName: obj.newPackageName
+                },
+                success: function (resp) {
+                    if (isFailDialog(resp)) return;
+                    layer.msg('操作成功');
+                    loadPackageData('#tb-all-package');
+                    layer.close(op);
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+            return false;
+        });
+    }
+
+    function close() {
+        $('#test10>div').html('');
+        $('#test10>span>b').html('');
+        $('#test10>span>span').html('');
+        $('#test10').hide();
+    }
+
+    function getSelectItems(id) { //获取选中数目
+        var checkStatus = layui.table.checkStatus(id)
+        return checkStatus.data;
+    }
+</script>
+</body>
+</html>

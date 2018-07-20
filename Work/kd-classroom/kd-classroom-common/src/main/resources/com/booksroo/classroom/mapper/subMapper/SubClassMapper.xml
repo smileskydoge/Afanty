@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.ClassMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+
+        <if test="classIds != null">
+            and id in
+            <foreach collection="classIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="classNo != null">
+            and class_no = #{classNo}
+        </if>
+
+        <if test="grade != null">
+            and grade = #{grade}
+        </if>
+
+        <if test="schoolId != null">
+            and school_id = #{schoolId}
+        </if>
+
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.ClassDomainQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from class where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="queryClassList" parameterType="com.booksroo.classroom.common.query.ClassQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from class where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.ClassQuery" resultType="java.lang.Long">
+        select count(1)
+        from class where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <select id="queryClassBySchool" parameterType="long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from class where school_id = #{schoolId}
+    </select>
+
+    <select id="queryTeacherClassInfoByTeacherId" parameterType="long" resultMap="BaseResultMap">
+        select
+        c.id id,c.school_id schoolId,c.grade grade,c.class_no classNo
+        from class c,teacher_class tc where c.id=tc.class_id and tc.teacher_id=#{teacherId} and tc.del_flag = 0;
+    </select>
+
+    <update id="addStudentNum" parameterType="long">
+      update class
+      set student_num = student_num+1
+      where id = #{classId}
+    </update>
+
+    <update id="subtractStudentNum" parameterType="long">
+      update class
+      set student_num = student_num-1
+      where id = #{classId}
+    </update>
+
+</mapper>

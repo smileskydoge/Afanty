@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.TeacherExerciseMapper" >
+
+  <select id="getExcerciseInfoByTeacherId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from teacher_exercise
+    where teacher_id = #{id}
+  </select>
+
+  <delete id="delEByEIdAndTid" parameterType="com.booksroo.classroom.common.domain.TeacherExercise">
+    delete
+    from teacher_exercise
+    where teacher_id = #{teacherId} and exercise_id = #{exerciseId}
+  </delete>
+
+
+
+</mapper>

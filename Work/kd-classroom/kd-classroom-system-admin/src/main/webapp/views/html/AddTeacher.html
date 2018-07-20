@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+    <script src="/views/assets/layui-v2.3.0/layui_formSelects-v3.js"></script>
+</head>
+<body>
+<form class="layui-form" style="padding-top: 25px;padding-left: 50px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="teacherName" required lay-verify="required"
+                   placeholder="请输入姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机号码</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="mobileNo" phone lay-verify="phone|unique"
+                   placeholder="请输入手机号码" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="age" placeholder="请输入年龄"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学校</label>
+        <select style="width: 200px;height: 38px;" id="selectSchool" name="schoolId" lay-verify="" lay-ignore>
+            <option value="-1">请选择学校</option>
+        </select>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">班级</label>
+        <div class="layui-input-block" id="ClassList"></div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学科</label>
+        <select style="width: 200px;height: 38px;" id="selectSubject" name="subjectId" lay-verify="" lay-ignore>
+            <option value="-1">请选择学科</option>
+        </select>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">班主任</label>
+        <div class="layui-input-block">
+            <input type="radio" name="jobTitle" value="1" title="是">
+            <input type="radio" name="jobTitle" value="0" title="否" checked>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="padding-left: 135px;">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    layui.use(['form', 'layer', 'jquery', 'laydate'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        $(document).ready(function () {
+            //请求获取学校信息
+            $.ajax({
+                url: '/admin/school/getAllInfo',
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                    if (data.result == 1) {
+                        initSchoolInfo(data.data)
+                    } else {
+                        layer.msg('学校列表查询失败');
+                    }
+                }
+            })
+
+            //请求获取学科信息
+            $.ajax({
+                url: '/admin/subject/allSubjectInfo',
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                    if (data.result == 1) {
+                        initSubjectInfo(data.data)
+                    } else {
+                        layer.msg('学科列表查询失败');
+                    }
+                }
+            })
+        });
+
+        //初始化学校下拉框
+        function initSchoolInfo(schoolArray) {
+            for (var i = 0; i < schoolArray.length; i++) {
+                var schoolId = schoolArray[i].id;
+                var schoolName = schoolArray[i].schoolName;
+                $("#selectSchool").append('<option value=' + schoolId + '>' + schoolName + '</option>');
+            }
+        }
+
+        $("#selectSchool").change(function () {
+            clearClassInfo();
+            var schoolId = $("#selectSchool").val();
+            $.ajax({
+                url:'/admin/class/getClassInfoBySchoolId',
+                type:'POST',
+                dataType:'json',
+                data:{schoolId:schoolId},
+                success:function (data) {
+                    if (data.result == 1){
+                        initClassInfo(data.data)
+                    }else{
+                        layer.msg('班级列表查询失败');
+                    }
+                }
+            })
+        })
+
+        //清空班级信息
+        function clearClassInfo(){
+            $("#ClassList").children().remove();
+        }
+
+        //初始化班级列表
+        function initClassInfo(ClassArray) {
+            for(var i=0;i<ClassArray.length;i++){
+                var classId = ClassArray[i].id;
+                var grade = ClassArray[i].grade;
+                var classNo = ClassArray[i].classNo;
+                var inner = '<input value="'+classId+'" type="checkbox" name="cls" title="'+grade + '年级' + classNo + '班'+'" lay-skin="primary"/>';
+                if ((i+1)%2==0)
+                    $("#ClassList").append(inner+'<br/>');
+                else
+                    $("#ClassList").append(inner);
+                form.render()
+            }
+        }
+
+        //初始化学科下拉框
+        function initSubjectInfo(subjectArray) {
+            for (var i = 0; i < subjectArray.length; i++) {
+                var subjectId = subjectArray[i].id;
+                var subjectName = subjectArray[i].subjectName;
+                $("#selectSubject").append('<option value=' + subjectId + '>' + subjectName + '</option>');
+            }
+        }
+
+        form.verify({
+            unique: function(value, item){ //value：表单的值、item：表单的DOM对象
+                var msg = 1;
+                $.ajax({
+                    async: false,
+                    url:'/admin/check/teacher',
+                    data:{mobileNo:value},
+                    dataType:'json',
+                    type:'post',
+                    success:function (data) {
+                        msg = data.result;
+                    }
+                })
+                if(msg === 0){
+                    return "该手机号码已存在!";
+                }
+            }
+        });
+
+
+        form.on('submit(add)', function (data) {
+            console.log(data.field);
+            var classIds = [];
+            $("input:checkbox[name='cls']:checked").each(function() {
+                classIds.push(parseInt($(this).val()));  // 每一个被选中项的值
+            });
+            data.field.classIds = classIds.join(",");
+            var subjectId =  $("#selectSubject").val();
+
+            if(classIds.length>0 && subjectId != -1){
+                $.ajax({
+                    url:'/admin/check/teacherClass',
+                    data:data.field,
+                    dataType:'json',
+                    type:'post',
+                    success:function (resultData) {
+                        if (resultData.success){
+                            sendAddInfo(data);
+                        }else{
+                            layer.msg(resultData.message);
+                        }
+                    }
+                })
+            }else {
+                layer.msg("学科与班级为必填字段！")
+            }
+            return false;
+        })
+
+
+        function sendAddInfo(data){
+            $.ajax({
+                url: '/admin/teacher/add',
+                data: data.field,
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                    if (data.result === 1) {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    } else {
+                        layer.msg('增加错误');
+                    }
+                }
+            })
+        }
+    });
+</script>
+</body>
+</html>

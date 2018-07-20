@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    #include("assets-link.html")
+
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+    #include("teacher/top.html")
+
+    #include("teacher/left.html")
+
+    <div class="layui-body">
+        <div style="padding: 25px 45px 15px 45px">
+            <div class="layui-tab" lay-filter="tab1">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">全部</li>
+                    <li>PPT</li>
+                    <li>图片</li>
+                    <li>已发送的资源包</li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show" style="padding: 30px">
+                        <div>
+                            <button type="button" class="layui-btn" id="selectPPT">
+                                <i class="layui-icon">&#xe67c;</i>选择文件
+                            </button>
+
+                            <div class="layui-input-inline" style="padding: 0 40px;">
+                                <input type="text" name="title" id="ppt-title" required lay-verify="required"
+                                       placeholder="输入文件名" autocomplete="off" class="layui-input">
+                            </div>
+
+                            <button type="button" class="layui-btn layui-btn-normal" id="submitPPT">
+                                开始上传
+                            </button>
+
+                            <span style="padding: 0 15px;color:red">* 目前仅支持 ppt 和 图片 的上传</span>
+                        </div>
+
+                        <div style="padding: 20px 0 0 0;">
+                            <button type="button" class="layui-btn layui-btn-normal" id="submitSend" onclick="send()">
+                                选择列表文件发送给班级
+                            </button>
+                            <span style="padding: 0 15px;color:red">* 发送给班级后才会在 pad 端显示</span>
+                        </div>
+
+                        <div>
+                            <table id="tb-all"></table>
+                        </div>
+
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <table id="tb-all-ppt"></table>
+
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <table id="tb-all-img"></table>
+                    </div>
+
+                    <div class="layui-tab-item">
+                        <table id="tb-all-package"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    #include("teacher/foot.html")
+</div>
+
+<div class="layui-carousel" id="test10"
+     style="position: absolute; z-index: 99999; top:0;left: 0;display: none;text-align: center;" lay-filter="test1">
+
+        <span style="padding: 20px;display: block;">
+            <span style="font-weight: bold;">当前页：1</span>&nbsp;&nbsp;&nbsp;&nbsp;<b></b>&nbsp;&nbsp;&nbsp;&nbsp;<a
+                href="javascript:close()"
+                style="font-weight: bold;color:blue">关闭</a>
+        </span>
+    <div carousel-item="">
+    </div>
+</div>
+
+<div id="pcd-dialog" style="padding: 20px;display: none;">
+    <span style="display: block;padding: 0 0 20px 0;"></span>
+
+    <div style="clear: both; padding: 20px 0;">请给本次课程命名：<span style="font-size:12px;color:red">* 如果名称已存在的话，会自动并入同一名称的资源包下</span>
+    </div>
+    <input style="border: 1px solid #333;" type="text" name="title" required lay-verify="required" placeholder="请输入名称"
+           autocomplete="off"
+           class="layui-input">
+
+    <br/><br/>
+    <button type="button" class="layui-btn" style="width: 100%;" onclick="doSend()">
+        发送
+    </button>
+    <input type="hidden" name="pcd-rid" value=""/>
+</div>
+
+<div id="tb-package-detail-box" style="padding: 0 20px;display: none;">
+    <table id="tb-package-detail"></table>
+</div>
+
+<div id="tb-package-edit-name" style="padding: 0 20px;display: none;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <input type="text" name="newPwd" required lay-verify="required" style="border: 1px solid #BBB;"
+                   placeholder="请输入名称" autocomplete="off"
+                   class="layui-input">
+        </div>
+        <div class="layui-form-item">
+            <button style="width: 100%;" class="layui-btn" lay-submit lay-filter="button-update-pwd">提交</button>
+        </div>
+    </form>
+</div>
+<script>
+
+    var classId = getUrlParam().classId;
+    var table;
+
+    layui.use(['upload', 'table', 'carousel', 'form', 'element'], function () {
+        var upload = layui.upload;
+        var element = layui.element;
+
+        table = layui.table;
+
+        var load = null;
+
+        element.on('tab(tab1)', function () {
+        });
+
+        //执行实例
+        upload.render({
+            elem: '#selectPPT',
+            url: rootPath + '/pc/teacher/uploadFile',
+            data: {
+                title: function () {
+                    return $('#ppt-title').val();
+                },
+                classId: classId
+            },
+            auto: false,
+            accept: 'file', //允许上传的文件类型
+            exts: 'ppt|pptx|bmp|jpg|jpeg|png|tiff|gif|svg|webp',
+            // acceptMime: 'file/ppt,file/pptx',
+            bindAction: '#submitPPT',
+            field: 'pptFile',
+            size: 1024 * 100, //最大允许上传的文件大小,单位kb
+            choose: function (obj) {
+                //将每次选择的文件追加到文件队列
+                // var files = obj.pushFile();
+                //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                obj.preview(function (index, file, result) {
+                    var fileName = file.name;
+                    $('#ppt-title').val(fileName);
+                    checkPPTName(fileName);
+                });
+
+            },
+            before: function (obj) { //obj参数包含的信息，跟 choose 回调完全一致，可参见上文。
+                $('#submitPPT').html('上传中...');
+                load = layer.load();
+            },
+            done: function (res, index, upload) { //上传后的回调
+
+                // if (isCookieTimeOut()) return;
+
+                layer.close(load);
+                $('#submitPPT').html('开始上传');
+
+                if (res.success) {
+                    layer.msg('上传成功');
+                    loadData(table, '#tb-all', '');
+                    loadData(table, '#tb-all-ppt', 1);
+                    loadData(table, '#tb-all-img', 2);
+                } else {
+                    promptDialog(res.message);
+                }
+            },
+            error: function () {
+                //请求异常回调
+                promptDialog('网络异常，上传失败，请重新上传');
+            }
+        });
+
+        loadData(table, '#tb-all', '');
+        loadData(table, '#tb-all-ppt', 1);
+        loadData(table, '#tb-all-img', 2);
+        loadPackageData(table, '#tb-all-package');
+
+        var carousel = layui.carousel;
+        //监听轮播切换事件
+        carousel.on('change(test1)', function (obj) { //test1来源于对应HTML容器的 lay-filter="test1" 属性值
+            var total = $('#test10>span>b').html();
+            total = total.replace(/总页数：/g, '');
+            if (total > 1) {
+                $('#test10>span>span').html('当前页：' + (obj.index + 1));
+            }
+        });
+    });
+
+    function loadData(table, id, type) {
+        table.render({
+            elem: id
+            // , height:
+            , url: rootPath + '/pc/teacher/getResourceList?classId=' + classId + '&resourceType=' + type //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'resourceName', title: '文件名', width: 400, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 130, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="view(' + d.resourceId + ')">查看</button>';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="del(' + d.resourceId + ', \'' + d.packageId + '\')">删除</button>';
+                        return h;
+                    }
+                }/*,
+                {
+                    field: '', title: '状态', width: 150, templet: function (d) {
+                        if (d.packageId === undefined || d.packageId == null) {
+                            return '未发送';
+                        }
+                        return '<span style="color:#009688">已发送</span>'
+                    }
+                }*/
+            ]]
+        });
+    }
+
+    function loadPackageData(table, id) {
+        table.render({
+            elem: id
+            // , height:
+            , url: rootPath + '/pc/teacher/getPackageList?classId=' + classId //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'packageName', title: '资源包名称', width: 400, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180},
+                {
+                    field: '', title: '操作', width: 180, templet: function (d) {
+                        var h = '';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="viewP(' + d.packageClassId + ')">查看</button>'
+                        // h += '<button class="layui-btn layui-btn-sm" onclick="editName(' + d.id + ')">修改名称</button>';
+                        h += '<button class="layui-btn layui-btn-sm" onclick="delP(' + d.id + ')">删除</button>';
+                        return h;
+                    }
+                }
+            ]]
+        });
+    }
+
+    $("#ppt-title").blur(function () {
+        checkPPTName($('#ppt-title').val());
+    });
+
+    function checkPPTName(fileName) {
+        var name = fileName;
+        var submit = $('#submitPPT');
+        var disable = false;
+        if (isEmptyStr(name)) {
+            layer.msg('请输入文件名');
+            disable = true;
+        }
+        if (name.length > 50) {
+            layer.msg('文件名不能超过50个字');
+            disable = true;
+        }
+
+        if (disable) {
+            // submit.attr('disabled', "true");
+        } else {
+            submit.removeAttr('disabled');
+        }
+
+        $.ajax({
+            url: rootPath + '/pc/teacher/isResourceNameExist',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                title: name
+            },
+            success: function (resp) {
+
+                if (isFail(resp)) return;
+
+                if (resp.data) {
+                    promptDialog('您的资源库里已存在与该名称相同的文件，请重新命名');
+                    // submit.attr('disabled', "true");
+                    return;
+                }
+                submit.removeAttr('disabled');
+            }
+        });
+    }
+
+    function view(rid) {
+        var carousel = layui.carousel;
+
+        $.ajax({
+            url: rootPath + '/pc/teacher/resourceDetail',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                resourceId: rid
+            },
+            success: function (resp) {
+                if (isFail(resp)) return;
+                var html = '';
+                $('#test10>div').html('');
+                $('#test10>span>b').html('');
+                $('#test10>span>span').html('当前页：1');
+                var arr = resp.data;
+                $.each(arr, function (i, obj) {
+                    html += '<div style="overflow: auto;"><img src="' + obj.content + '" style="max-width: 1000px; max-height: 700px;" /></div>';
+                });
+                $('#test10').show();
+                $('#test10>div').html(html);
+                $('#test10>span>b').html('总页数：' + arr.length);
+                carousel.render({
+                    elem: '#test10', width: '100%', arrow: 'always', anim: 'default',
+                    autoplay: true,
+                    full: true
+                });
+                if (arr.length <= 1) {
+                    $('#test10>span>span').html('');
+                }
+            },
+            error: function (resp) {
+                layer.msg('网络异常请重试：' + resp);
+            }
+        });
+    }
+
+    function del(rid, pid) {
+        if (pid === undefined || pid == null || pid === 'null' || pid === 'undefined') pid = '';
+
+        var confirm = layer.confirm('确定删除吗？删除只会按班级跟资源包删除，不影响其它班级', {
+            btn: ['确定', '取消'], //可以无限个按钮
+        }, function (index, layero) {
+            $.ajax({
+                url: rootPath + '/pc/teacher/delResource',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    resourceIds: rid + '_' + pid,
+                    classId: classId
+                },
+                success: function (resp) {
+                    if (isFail(resp)) return;
+                    layer.msg('删除成功');
+                    loadData(table, '#tb-all', '');
+                    loadData(table, '#tb-all-ppt', 1);
+                    loadData(table, '#tb-all-img', 2);
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+        }, function (index) {
+            layer.close(confirm);
+        });
+    }
+
+    function delP(pid) {
+        var confirm = layer.confirm('确定删除吗？', {
+            btn: ['确定', '取消'], //可以无限个按钮
+        }, function (index, layero) {
+            $.ajax({
+                url: rootPath + '/pc/teacher/delPackage',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    packageIds: pid,
+                    classId: classId
+                },
+                success: function (resp) {
+                    if (isFail(resp)) return;
+                    layer.msg('删除成功');
+                    loadPackageData(table, '#tb-all-package');
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+        }, function (index) {
+            layer.close(confirm);
+        });
+    }
+
+    function editName(name) {
+        layer.open({
+            title: '文件列表',
+            type: 1,
+            area: ['400px', '300px'],
+            content: $('#tb-package-edit-name') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+
+
+    }
+
+    function viewP(pid) {
+        layer.open({
+            title: '文件列表',
+            type: 1,
+            area: ['600px', '500px'],
+            content: $('#tb-package-detail-box') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+
+        table.render({
+            elem: '#tb-package-detail',
+            height: 400,
+            limits: [10],
+            url: rootPath + '/pc/teacher/getResourceList?packageId=' + pid,
+            page: true,
+            cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'resourceName', title: '文件名', width: 300, fixed: 'left'},
+                {field: 'createTimeStr', title: '创建时间', width: 180}
+            ]]
+        });
+    }
+
+    function close() {
+        $('#test10>div').html('');
+        $('#test10>span>b').html('');
+        $('#test10>span>span').html('');
+        $('#test10').hide();
+    }
+
+    var pcd = null;
+
+    function send() {
+        var arr = getSelectItems();
+        if (arr.length === 0) {
+            layer.msg('请先选择文件');
+            return;
+        }
+        var rids = '';
+        $.each(arr, function (i, obj) {
+            rids += ',' + obj.resourceId;
+        });
+
+        $('#pcd-dialog>span').html(pickClassHtml);
+        $('#pcd-dialog input[type="hidden"]').val(rids);
+        pcd = layer.open({
+            title: '选择班级',
+            type: 1,
+            area: ['600px', '500px'],
+            content: $('#pcd-dialog') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+        });
+        $('#pcd-dialog input[name="cb_class_' + classId + '"]').prop("checked", true);
+    }
+
+    function doSend() {
+
+        var cids = '';
+        var cbs = $("#pcd-dialog input:checkbox:checked");
+        if (cbs.length === 0) {
+            layer.msg('请选择班级');
+            return;
+        }
+        $.each(cbs, function (i, obj) {
+            cids += ',' + obj.value;
+        });
+
+        var name = $('#pcd-dialog input[name="title"]').val();
+        if (name === '') {
+            layer.msg('请填写名称');
+            return;
+        }
+        if (name.length > 50) {
+            layer.msg('名称不能超过50个字');
+            return;
+        }
+
+        var button = $('#pcd-dialog button');
+        button.attr('disabled', true);
+
+        var rids = $('#pcd-dialog input[name="pcd-rid"]').val();
+
+        $.ajax({
+            url: rootPath + '/pc/teacher/sendToClass',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                resourceIds: rids,
+                classIds: cids,
+                packageName: name
+            },
+            success: function (resp) {
+                button.removeAttr('disabled', true);
+
+                if (isFailDialog(resp)) {
+                    return;
+                }
+                layer.msg('发送成功');
+                loadData(table, '#tb-all', '');
+                loadData(table, '#tb-all-ppt', 1);
+                loadData(table, '#tb-all-img', 2);
+                loadPackageData(table, '#tb-all-package');
+                layer.close(pcd);
+            },
+            error: function (resp) {
+                button.removeAttr('disabled', true);
+                layer.msg('网络异常请重试：' + resp);
+            }
+        });
+    }
+
+    function getSelectItems() { //获取选中数目
+        var checkStatus = layui.table.checkStatus('tb-all')
+        return checkStatus.data;
+    }
+</script>
+</body>
+</html>

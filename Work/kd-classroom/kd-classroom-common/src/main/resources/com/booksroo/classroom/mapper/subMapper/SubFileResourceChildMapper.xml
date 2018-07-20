@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.FileResourceChildMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="resourceId != null">
+            and resource_id = #{resourceId}
+        </if>
+        <if test="resourceIds != null">
+            and resource_id in
+            <foreach collection="resourceIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.ResourceQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from file_resource_child where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.ResourceQuery" resultType="java.lang.Integer">
+        select count(1)
+        from file_resource_child where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <insert id="insertBatch">
+        INSERT INTO file_resource_child(resource_id,content,order_no)
+        VALUES
+        <foreach collection="records" item="record" separator=",">
+            (#{record.resourceId},#{record.content},#{record.orderNo})
+        </foreach>
+    </insert>
+</mapper>

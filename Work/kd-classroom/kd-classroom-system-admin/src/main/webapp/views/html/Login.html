@@ -1,0 +1,58 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>口袋课堂备课平台-登录</title>
+
+    <link rel="stylesheet" href="/views/assets/layui-v2.3.0/css/layui.css">
+
+    <script src="/views/assets/js/jquery-1.12.4.min.js"></script>
+
+    <script src="/views/assets/layui-v2.3.0/layui.js"></script>
+    <script src="/views/assets/js/jquery.md5.js"></script>
+</head>
+<body style="background: #666666">
+
+<div style="padding:20px 40px 15px 50px;margin:10% auto 20px auto;width:500px;background: #FFF">
+    <div class="layui-form-item" style="padding-bottom: 10px;">
+        <!--<label class="layui-form-label" style="padding-top:0;padding-bottom: 0;width: 300px;"></label>-->
+        <div class="layui-input-inline" style="width: 450px; padding: 10px;border-bottom: 2px solid #009688;">
+            <h2 style="padding-left: 125px;">口袋课堂管理平台</h2>
+        </div>
+    </div>
+    <div style="padding-left: 100px;padding-top: 10px;">
+        账号：<input id="account" type="text"/><br/>
+    </div>
+    <div style="padding-left: 100px;padding-top: 10px;">
+        密码：<input id="password" type="password"/>
+    </div>
+    <div style="padding-left: 160px;padding-top: 20px;">
+        <button class="layui-btn layui-btn-sm" onclick="sendLoginInfo()">登录</button>
+        <button class="layui-btn layui-btn-sm">注册</button>
+    </div>
+    <div class="layui-form-item" style="margin-top:30px">
+        <label class="layui-form-label" style="padding-top:0;padding-bottom: 0;">&nbsp;</label>
+        <div class="layui-input-inline" style="padding-top: 20px;">
+            <span style="font-size: 12px;">© booksroo.com - 口袋鼠科技</span>
+        </div>
+    </div>
+</div>
+<script src="/views/assets/js/jquery-1.12.4.min.js"></script>
+<script src="/views/assets/js/jquery.md5.js"></script>
+<script>
+    function sendLoginInfo() {
+        var account = $("#account").val();
+        var password = $.md5($("#password").val())
+        $.ajax({
+            url:'/tologin',
+            type:'POST',
+            dataType:'json',
+            data:{account:account,password:password},
+            success:function(data){
+                window.location.href='/admin/student';
+            }
+        })
+    }
+</script>
+</body>
+</html>

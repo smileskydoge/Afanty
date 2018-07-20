@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.AdminMapper" >
+  <select id="queryAdminInfoByAccount" parameterType="string" resultType="com.booksroo.classroom.common.domain.AdminDomain">
+    SELECT *
+    FROM admin
+    WHERE account = #{account}
+  </select>
+</mapper>

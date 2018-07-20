@@ -1,0 +1,136 @@
+<style>
+    .layui-nav .layui-nav-child dd.layui-this a, .layui-nav-child dd.layui-this {
+        background-color: #FFF;
+        color: #000;
+    }
+</style>
+
+<div class="layui-header">
+    <div class="layui-logo"><a href="/pc/teacher/resource?type=all" style="color: #009688">口袋课堂备课平台</a></div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <!-- <ul class="layui-nav layui-layout-left">
+         <li class="layui-nav-item"><a href="">我的资源</a></li>
+         <li class="layui-nav-item"><a href="">班级</a></li>
+     </ul>-->
+    <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item"><span id="t_name"></span>老师，您好</li>
+
+        <li class="layui-nav-item">
+            <a href="javascript:;">
+                <img id="headImg" src="/views/assets/image/Avatar.png" class="layui-nav-img">
+                <!--贤心-->
+            </a>
+            <dl class="layui-nav-child">
+                <!--<dd><a href="">基本资料</a></dd>-->
+                <dd><a href="javascript:updatePwd()">修改密码</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="javascript:logout()">退出</a></li>
+    </ul>
+</div>
+
+<form class="layui-form" action="" style="display: none;padding: 35px 50px 20px 50px;" id="pwd-box">
+    <div class="layui-form-item">
+        <input type="password" name="oldPwd" required lay-verify="required" style="border: 1px solid #BBB;"
+               placeholder="原密码" autocomplete="off"
+               class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <input type="password" name="newPwd" required lay-verify="required" style="border: 1px solid #BBB;"
+               placeholder="新密码" autocomplete="off"
+               class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <input type="password" name="newPwd2" required lay-verify="required" style="border: 1px solid #BBB;"
+               placeholder="确认密码" autocomplete="off"
+               class="layui-input">
+    </div>
+    <div class="layui-form-item">
+        <button style="width: 100%;" class="layui-btn" lay-submit lay-filter="button-update-pwd">提交</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['element', 'layer', 'form'], function () {
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(button-update-pwd)', function (data) {
+            var f = data.field;
+            if (f.newPwd.length > 12 || f.newPwd.length < 6 || f.newPwd2.length > 12 || f.newPwd2.length < 6) {
+                layer.msg('密码长度必须是 6 到 12 位之间');
+                return false;
+            }
+            if (f.newPwd.length !== f.newPwd2.length) {
+                layer.msg('密码不一致');
+                return false;
+            }
+
+            $.ajax({
+                url: rootPath + '/pc/teacher/updatePwd',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    oldPwd: $.md5(f.oldPwd),
+                    newPwd: $.md5(f.newPwd)
+                },
+                success: function (resp) {
+                    if (isFail(resp)) return;
+                    layer.open({
+                        title: '提示',
+                        content: '修改成功，请重新登录',
+                        btn: '确定',
+                        yes: function (index, layero) {
+                            logout();
+                        }
+                    });
+                },
+                error: function (resp) {
+                    layer.msg('网络异常请重试：' + resp);
+                }
+            });
+
+            return false;
+        });
+    });
+
+    var cookieVal = $.cookie('pcLoginUserObj');
+    if (cookieVal === undefined || cookieVal === null || cookieVal === '') {
+        window.location.href = rootPath + '/views/html/teacher/login.html';
+    }
+    var teacherObj = JSON.parse(cookieVal);
+
+    $('#t_name').html(teacherObj.teacherName);
+    $('#headImg').attr('src', teacherObj.headImg);
+
+    var teacherId = teacherObj.id;//后面的js用到
+
+    function logout() {
+        // $.ajax({
+        //     url: rootPath + '/common/logout',
+        //     type: 'GET',
+        //     dataType: 'json',
+        //     data: {},
+        //     success: function (resp) {
+        $.cookie('pcLoginUserObj', '', {path: '/'});
+        window.location.href = rootPath + '/views/html/teacher/login.html';
+        // }
+        // });
+    }
+
+    var op;
+
+    function updatePwd() {
+        op = layer.open({
+            title: '修改密码',
+            type: 1,
+            area: ['400px', '340px'],
+            content: $('#pwd-box')
+        });
+    }
+
+    function closePwd() {
+        layer.close(op);
+    }
+
+</script>

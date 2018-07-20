@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.SchoolMapper">
+    <sql id="whereSchool">
+
+        <if test="schoolName != null and schoolName != ''">
+            and school_name like "%"#{schoolName}"%"
+        </if>
+
+        <if test="area != null and area != ''">
+            and area like "%"#{area}"%"
+        </if>
+
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="querySchoolList" parameterType="com.booksroo.classroom.common.query.SchoolQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from school where 1=1
+        <include refid="whereSchool"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.SchoolQuery" resultType="java.lang.Long">
+        select count(1)
+        from school where 1=1
+        <include refid="whereSchool"/>
+    </select>
+
+    <select id="queryAllSchoolInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from school
+    </select>
+
+</mapper>

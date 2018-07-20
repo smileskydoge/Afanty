@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StudentExerciseSubmitMapper">
+
+    <select id="selectSubmitStuId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select student_id from student_exercise_submit where unit_test_exercise_id=#{uteId}
+    </select>
+
+    <select id="selectSubmitNoSelectStuId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select student_id from student_exercise_submit where unit_test_exercise_id=#{uteId} and (student_answer is null or student_answer = '')
+    </select>
+
+    <select id="selectRightStuId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select student_id from student_exercise_submit where unit_test_exercise_id=#{uteId} and answer_result=1
+    </select>
+
+    <select id="selectWrongStuId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select student_id from student_exercise_submit where unit_test_exercise_id=#{uteId} and answer_result=2
+    </select>
+
+    <select id="countSubmitNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1) from student_exercise_submit where unit_test_exercise_id=#{uteId}
+    </select>
+
+    <select id="countSubmitNoSelectNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1) from student_exercise_submit where unit_test_exercise_id=#{uteId} and (student_answer is null or student_answer = '')
+    </select>
+
+    <select id="countRightNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1) from student_exercise_submit where unit_test_exercise_id=#{uteId} and answer_result=1
+    </select>
+
+    <select id="countWrongNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1) from student_exercise_submit where unit_test_exercise_id=#{uteId} and answer_result=2
+    </select>
+
+    <insert id="insertBatch">
+        INSERT INTO student_exercise_submit(student_id,unit_test_exercise_id,student_answer,answer_result,cost_time)
+        VALUES
+        <foreach collection="records" item="record" separator=",">
+            (#{record.studentId},#{record.unitTestExerciseId},#{record.studentAnswer},#{record.answerResult},#{record.costTime})
+        </foreach>
+    </insert>
+</mapper>

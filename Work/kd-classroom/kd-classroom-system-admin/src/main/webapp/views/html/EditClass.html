@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body>
+<form class="layui-form " style="padding-top: 50px;padding-left: 25px;">
+    <input type="hidden" id="classId" value="${id}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">年级</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="grade" required  lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">班级</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="classNo" required  lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">开始时间</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="termStartTime" class="layui-input" id="termStartTime" placeholder="yyyy-MM-dd">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">结束时间</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="termEndTime" class="layui-input"  id="termEndTime" placeholder="yyyy-MM-dd">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery','laydate'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        $(document).ready(function () {
+            var classId = $("#classId").val()
+            initData(classId);
+        });
+
+        function initData(Id) {
+            $.ajax({
+                url:'/admin/class/queryClassById',
+                dataType:'json',
+                type:'post',
+                data:{classId:Id},
+                success:function (data) {
+                    if (data.result == 1){
+                        showData(data.data)
+                    }else{
+                        layer.msg('学生信息查询失败');
+                    }
+                }
+            })
+        }
+
+        //展示编辑框数据 初始化
+        function showData(data) {
+            $("input[name='grade']").val(data.grade);
+            $("input[name='classNo']").val(data.classNo);
+
+            $("#classId").data("schoolId",data.schoolId);
+
+            var termStartTime = data.termStartTime;
+            var termEndTime = data.termEndTime;
+
+            // laydate.render({
+            //     elem: '#termStartTime' //指定元素
+            //     ,value: initTime(termStartTime)
+            //     ,isInitValue: true
+            // });
+            //
+            // laydate.render({
+            //     elem: '#termEndTime' //指定元素
+            //     ,value: initTime(termEndTime)
+            //     ,isInitValue: true
+            // });
+
+            var endDate= laydate.render({
+                elem: '#termEndTime',//选择器结束时间
+                value: initTime(termEndTime),
+                isInitValue: true,
+                min:"2000-01-01",//设置min默认最小值
+                done: function(value,date){
+                    startDate.config.max={
+                        year:date.year,
+                        month:date.month-1,//关键
+                        date: date.date
+                    }
+                }
+            });
+            //日期范围
+            var startDate=laydate.render({
+                elem: '#termStartTime'
+                ,value: initTime(termStartTime)
+                ,isInitValue: true
+                ,max:"2099-12-31",//设置一个默认最大值
+                done: function(value, date){
+                    endDate.config.min ={
+                        year:date.year,
+                        month:date.month-1, //关键
+                        date: date.date
+                    };
+                }
+            });
+        }
+
+        function initTime(data){
+            var initTime = "";
+            if(data !=null ){
+                initTime = new Date(data);
+            }
+            return initTime;
+        }
+
+        form.on('submit(add)',function (data) {
+            data.field.id = $("#classId").val();
+            data.field.schoolId = $("#classId").data("schoolId");
+
+            $.ajax({
+                url:'/admin/check/class',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (resultData) {
+                    if (resultData.success){
+                        sendEditInfo(data);
+                    }else{
+                        layer.msg(resultData.message);
+                    }
+                }
+            })
+            return false;
+        })
+
+        function sendEditInfo(data) {
+            $.ajax({
+                url:'/admin/class/update',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    if (data.result == 1){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }else{
+                        layer.msg('修改错误');
+                    }
+                }
+            })
+        }
+
+    });
+</script>
+</body>
+</html>

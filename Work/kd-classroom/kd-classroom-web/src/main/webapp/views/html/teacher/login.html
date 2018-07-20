@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>口袋课堂备课平台-登录</title>
+
+    <link rel="stylesheet" href="/views/assets/layui-v2.3.0/css/layui.css?v=1">
+
+    <script src="/views/assets/js/jquery-1.12.4.min.js?v=1"></script>
+
+    <script src="/views/assets/layui-v2.3.0/layui.js?v=1"></script>
+    <script src="/views/assets/js/jquery.md5.js?v=1"></script>
+    <script src="/views/assets/js/jquery.cookie.js?v=1"></script>
+    <script src="/views/assets/js/util.js?v=1"></script>
+    <script src="/views/assets/js/biz.js?v=1"></script>
+</head>
+<body style="background: #393D49">
+
+<div style="padding:20px 30px;margin:10% auto 20px auto;width:500px;background: #FFF">
+    <form class="layui-form" method="post">
+        <div class="layui-form-item" style="padding-bottom: 10px;">
+            <!--<label class="layui-form-label" style="padding-top:0;padding-bottom: 0;width: 300px;"></label>-->
+            <div class="layui-input-inline" style="width:100%; padding: 10px 0;border-bottom: 2px solid #009688;">
+                <h2 style="padding: 0">口袋课堂备课平台</h2>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">手机号</label>
+            <div class="layui-input-block">
+                <input type="tel" name="mobileNo" required lay-verify="required" placeholder="请输入手机号"
+                       autocomplete="off"
+                       class="layui-input" style="width:300px">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" required lay-verify="required" placeholder="请输入密码"
+                       autocomplete="off"
+                       class="layui-input" style="width:300px">
+            </div>
+            <!--<div class="layui-form-mid layui-word-aux">辅助文字</div>-->
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">登录</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-bottom: 10px;">
+            <label class="layui-form-label" style="padding-top:0;padding-bottom: 0;">&nbsp;</label>
+            <div class="layui-input-inline">
+                <span style="font-size: 12px;">忘记密码？请及时联系学校管理员</span>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+<script>
+    //Demo
+    layui.use('form', function () {
+        var form = layui.form;
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            var obj = data.field;
+            var mobileNo = obj.mobileNo;
+            var pwd = obj.password;
+            // layer.msg(JSON.stringify(data.field));
+            login(mobileNo, pwd)
+            return false;
+        });
+    });
+
+    function login(mobileNo, pwd) {
+        $.ajax({
+            url: rootPath + '/common/login',
+            type: 'GET',
+            // async: false,
+            dataType: 'json',
+            data: {
+                userType: 'teacher',
+                mobileNo: mobileNo,
+                password: $.md5(pwd),
+                platform: 1
+            },
+            success: function (resp) {
+
+                if (isFail(resp)) return;
+
+                var cookieVal = JSON.stringify(resp.data);
+
+                var date = new Date();
+                var minutes = 90;
+                date.setTime(date.getTime() + (minutes * 60 * 1000));
+                $.cookie('pcLoginUserObj', cookieVal, {expires: date, path: '/'});
+
+                window.location.href = rootPath + '/pc/teacher/resource?type=all';
+
+            },
+            error: function (resp) {
+                layer.msg('网络异常请重试：' + resp);
+            }
+        });
+    }
+
+</script>

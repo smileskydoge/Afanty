@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.FileNotesMapper" >
+  <resultMap id="BaseResultMap" type="com.booksroo.classroom.common.domain.FileNotes" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="child_resource_id" property="childResourceId" jdbcType="BIGINT" />
+    <result column="note_name" property="noteName" jdbcType="VARCHAR" />
+    <result column="note_type" property="noteType" jdbcType="TINYINT" />
+    <result column="note_content" property="noteContent" jdbcType="VARCHAR" />
+    <result column="del_flag" property="delFlag" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    id, child_resource_id, note_name, note_type, note_content, del_flag, create_time, 
+    update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    select 
+    <include refid="Base_Column_List" />
+    from file_notes
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    delete from file_notes
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.booksroo.classroom.common.domain.FileNotes" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    insert into file_notes (id, child_resource_id, note_name, 
+      note_type, note_content, del_flag, 
+      create_time, update_time)
+    values (#{id,jdbcType=BIGINT}, #{childResourceId,jdbcType=BIGINT}, #{noteName,jdbcType=VARCHAR}, 
+      #{noteType,jdbcType=TINYINT}, #{noteContent,jdbcType=VARCHAR}, #{delFlag,jdbcType=BIT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.booksroo.classroom.common.domain.FileNotes" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into file_notes
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="childResourceId != null" >
+        child_resource_id,
+      </if>
+      <if test="noteName != null" >
+        note_name,
+      </if>
+      <if test="noteType != null" >
+        note_type,
+      </if>
+      <if test="noteContent != null" >
+        note_content,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="childResourceId != null" >
+        #{childResourceId,jdbcType=BIGINT},
+      </if>
+      <if test="noteName != null" >
+        #{noteName,jdbcType=VARCHAR},
+      </if>
+      <if test="noteType != null" >
+        #{noteType,jdbcType=TINYINT},
+      </if>
+      <if test="noteContent != null" >
+        #{noteContent,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.booksroo.classroom.common.domain.FileNotes" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update file_notes
+    <set >
+      <if test="childResourceId != null" >
+        child_resource_id = #{childResourceId,jdbcType=BIGINT},
+      </if>
+      <if test="noteName != null" >
+        note_name = #{noteName,jdbcType=VARCHAR},
+      </if>
+      <if test="noteType != null" >
+        note_type = #{noteType,jdbcType=TINYINT},
+      </if>
+      <if test="noteContent != null" >
+        note_content = #{noteContent,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.booksroo.classroom.common.domain.FileNotes" >
+    <!--
+     WARNING -  该映射文件为自动生成, 请勿修改.
+    -->
+    update file_notes
+    set child_resource_id = #{childResourceId,jdbcType=BIGINT},
+      note_name = #{noteName,jdbcType=VARCHAR},
+      note_type = #{noteType,jdbcType=TINYINT},
+      note_content = #{noteContent,jdbcType=VARCHAR},
+      del_flag = #{delFlag,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body>
+<form class="layui-form " style="padding-top: 50px;padding-left: 25px;">
+    <input type="hidden" id="subjectId" value="${id}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">学科名称</label>
+        <div class="layui-input-block">
+            <input style="width: 200px;" type="text" name="subjectName" required  lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">提交</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery'], function () {
+
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        $(document).ready(function () {
+            var subjectId = $("#subjectId").val()
+            initData(subjectId);
+        });
+
+        function initData(Id) {
+            $.ajax({
+                url:'/admin/subject/querySubjectById',
+                dataType:'json',
+                type:'post',
+                data:{subjectId:Id},
+                success:function (data) {
+                    console.log(data)
+                    if (data.result == 1){
+                        showData(data.data)
+                    }else{
+                        layer.msg('学生信息查询失败');
+                    }
+                }
+            })
+        }
+
+        //展示编辑框数据 初始化
+        function showData(data) {
+            console.log(data)
+            $("input[name='subjectName']").val(data.subjectName);
+        }
+
+        form.on('submit(add)',function (data) {
+            data.field.id = $("#subjectId").val();
+            $.ajax({
+                url:'/admin/check/subject',
+                data:data.field,
+                dataType:'json',
+                type:'POST',
+                success:function (resultData) {
+                    if (resultData.success){
+                        sendEditInfo(data);
+                    }else{
+                        layer.msg(resultData.message);
+                    }
+                }
+            })
+
+            return false;
+        })
+
+        function sendEditInfo(data) {
+            $.ajax({
+                url:'/admin/subject/update',
+                data:data.field,
+                dataType:'json',
+                type:'post',
+                success:function (data) {
+                    if (data.result == 1){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }else{
+                        layer.msg('修改错误');
+                    }
+                }
+            })
+        }
+
+    });
+</script>
+</body>
+</html>

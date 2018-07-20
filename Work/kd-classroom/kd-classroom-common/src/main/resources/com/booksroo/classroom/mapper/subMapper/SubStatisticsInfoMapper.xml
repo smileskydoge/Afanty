@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StatisticsInfoMapper">
+
+    <insert id="insertBatch">
+        INSERT INTO statistics_info(unit_test_exercise_id,submit_num,un_submit_num,submit_no_select,right_num,wrong_num,options)
+        VALUES
+        <foreach collection="records" item="record" separator=",">
+            (#{record.unitTestExerciseId},#{record.submitNum},#{record.unSubmitNum},#{record.submitNoSelect},#{record.rightNum},#{record.wrongNum},#{record.options})
+        </foreach>
+    </insert>
+</mapper>

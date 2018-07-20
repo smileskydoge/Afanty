@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.PackageResourceMapper">
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="packageClassId != null">
+            and package_class_id = #{packageClassId}
+        </if>
+        <if test="resourceId != null">
+            and resource_id = #{resourceId}
+        </if>
+        <if test="resourceIds != null">
+            and resource_id in
+            <foreach collection="resourceIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.PackageResourceQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_resource where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="selectJoinResource" parameterType="com.booksroo.classroom.common.query.PackageResourceQuery"
+            resultMap="BaseResultMap">
+        select pr.id, pr.package_class_id, pr.resource_id, pr.status, pr.current_no, pr.remark, pr.del_flag, pr.create_time,
+        pr.update_time
+        from package_resource pr, file_resources fr where pr.resource_id=fr.id
+        <if test="packageClassId != null">
+            and pr.package_class_id = #{packageClassId}
+        </if>
+        <if test="resourceType != null">
+            and fr.resource_type = #{resourceType}
+        </if>
+        order by pr.id desc
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.PackageResourceQuery"
+            resultType="java.lang.Integer">
+        select count(1)
+        from package_resource where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <select id="countJoinResource" parameterType="com.booksroo.classroom.common.query.PackageResourceQuery"
+            resultType="java.lang.Integer">
+        select count(1)
+        from package_resource pr, file_resources fr where pr.resource_id=fr.id
+        <if test="packageClassId != null">
+            and pr.package_class_id = #{packageClassId}
+        </if>
+        <if test="resourceType != null">
+            and fr.resource_type = #{resourceType}
+        </if>
+    </select>
+
+    <select id="selectPackageResourceType" parameterType="java.lang.Long" resultType="java.lang.Integer" >
+        select distinct fr.resource_type from package_resource pr, file_resources fr where pr.resource_id=fr.id
+        and pr.package_class_id=#{packageClassId}
+    </select>
+
+    <update id="updateByPackageClassId" parameterType="com.booksroo.classroom.common.domain.PackageResource">
+        update package_resource
+        <set>
+            <if test="currentNo != null">
+                current_no = #{currentNo},
+            </if>
+            <if test="delFlag != null">
+                del_flag = #{delFlag,jdbcType=BIT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where package_class_id = #{packageClassId,jdbcType=BIGINT}
+        <if test="resourceId != null">
+            and resource_id = #{resourceId,jdbcType=BIGINT}
+        </if>
+    </update>
+
+    <delete id="deleteByPCIdAndRId">
+        delete from package_resource where package_class_id=#{packageClassId}
+        <if test="resourceId != null">
+            and resource_id = #{resourceId,jdbcType=BIGINT}
+        </if>
+    </delete>
+    <delete id="deleteByResourceId">
+        delete from package_resource where resource_id = #{resourceId,jdbcType=BIGINT}
+    </delete>
+</mapper>

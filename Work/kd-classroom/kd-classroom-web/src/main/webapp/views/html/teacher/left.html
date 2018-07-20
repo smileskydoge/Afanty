@@ -1,0 +1,41 @@
+<div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+        <ul id="left_menu" class="layui-nav layui-nav-tree" style="text-align: center;">
+            <li class="layui-nav-item"><a href="">全部资源</a></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    var classArr = null;
+    var pickClassHtml = '';
+    $.ajax({
+        url: rootPath + '/pc/teacher/getClassList',
+        type: 'GET',
+        dataType: 'json',
+        data: {},
+        success: function (resp) {
+
+            if (isFail(resp)) return;
+
+            classArr = resp.data;
+            if (classArr !== undefined && classArr != null) {
+                var html = '';
+                html += '<li class="layui-nav-item"><a href="' + rootPath + '/pc/teacher/resource?type=all">全部资源</a></li>'
+                $.each(classArr, function (i, item) {
+                    var g = transferNoToCh(item.grade);
+                    var n = item.classNo;
+                    html += '<li class="layui-nav-item"><a href="' + rootPath + '/pc/teacher/resource?classId=' + item.id + '">' + g + '&nbsp;(' + n + ')&nbsp;班</a></li>'
+                    pickClassHtml += '<input type="checkbox" value="'+item.id+'" name="cb_class_' + item.id + '">' + g + '(' + n + ')班&nbsp;&nbsp;&nbsp;&nbsp;';
+                });
+                $('#left_menu').html(html);
+            }
+            highURL("left_menu", "active layui-nav-item", "li");
+        },
+        error: function (resp) {
+            layer.msg('网络异常请重试：' + resp);
+        }
+    });
+
+</script>

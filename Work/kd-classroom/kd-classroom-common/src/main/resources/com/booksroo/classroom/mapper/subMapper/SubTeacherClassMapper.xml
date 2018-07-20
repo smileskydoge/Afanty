@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.TeacherClassMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="teacherId != null">
+            and teacher_id = #{teacherId}
+        </if>
+
+        <if test="classId != null">
+            and class_id = #{classId}
+        </if>
+        <if test="subjectId != null">
+            and subject_id LIKE CONCAT('%',#{subjectId},'%')
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.ClassDomainQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher_class where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+
+    </select>
+
+    <update id="updateTeacherClassInfo" parameterType="com.booksroo.classroom.common.domain.TeacherClass">
+        update teacher_class
+        <set>
+            <if test="classId != null">
+                class_id = #{classId,jdbcType=BIGINT},
+            </if>
+            <if test="subjectId != null">
+                subject_id = #{subjectId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where teacher_id = #{teacherId}
+        and del_flag = 0
+    </update>
+
+
+    <!--<delete id="deleteOriMappingInfo" parameterType="long">-->
+      <!--delete from teacher_class-->
+      <!--where teacher_id = #{teacherId}-->
+    <!--</delete>-->
+
+    <update id="deleteOriMappingInfo" parameterType="long" >
+      update teacher_class
+      set del_flag = 1
+      where teacher_id = #{teacherId}
+    </update>
+
+    <update id="deleteOriRetainInfo" parameterType="com.booksroo.classroom.common.query.BaseQuery" >
+      update teacher_class
+      set del_flag = 1
+      where teacher_id = #{id}
+        <if test="ids != null">
+            and class_id not in
+            <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="queryTeacherIdsByClass" parameterType="java.util.Set" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher_class
+        where 1=1
+        and del_flag = 0
+        <if test="classIds != null">
+            and class_id in
+            <foreach collection="classIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="queryClassIdsByTeacherId" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select
+        class_id
+        from teacher_class
+        where
+        teacher_id = #{teacherId}
+        and del_flag = 0
+    </select>
+
+    <select id="queryIdByCidAndTid" parameterType="com.booksroo.classroom.common.domain.TeacherClass" resultType="java.lang.Long">
+        select
+        id
+        from teacher_class
+        where
+        teacher_id = #{teacherId}
+        and class_id = #{classId}
+        and del_flag = 0
+    </select>
+
+</mapper>

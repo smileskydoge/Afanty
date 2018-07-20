@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.StudentMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="ids != null">
+            and id in
+            <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="parentPhone != null and parentPhone != ''">
+            and parent_phone = #{parentPhone}
+        </if>
+        <if test="schoolId != null">
+            and school_id = #{schoolId}
+        </if>
+        <if test="classId != null">
+            and class_id = #{classId}
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="admin_student">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="studentNo != null and studentNo != ''">
+            and student_no like "%"#{studentNo}"%"
+        </if>
+        <if test="parentPhone != null and parentPhone != ''">
+            and parent_phone like  "%"#{parentPhone}"%"
+        </if>
+        <if test="studentName != null and studentName != ''">
+            and student_name like "%"#{studentName}"%"
+        </if>
+        <if test="schoolId != null">
+            and school_id = #{schoolId}
+        </if>
+        <if test="classId != null">
+            and class_id = #{classId}
+        </if>
+        <if test="classIds != null and classIds !=''">
+            and class_id in
+            <foreach collection="classIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.StudentQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from student where 1=1
+        <include refid="admin_student"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="selectForWeb" parameterType="com.booksroo.classroom.common.query.StudentQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from student where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.StudentQuery" resultType="java.lang.Long">
+        select count(1)
+        from student where 1=1
+        <include refid="admin_student"/>
+    </select>
+
+    <select id="countForWeb" parameterType="com.booksroo.classroom.common.query.StudentQuery" resultMap="BaseResultMap">
+        select count(1)
+        from student where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <update id="updateStatus" parameterType="com.booksroo.classroom.common.domain.StatusDomain">
+    update student
+    set del_flag = #{delFlag,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getStuNameByClass" parameterType="java.lang.Long" resultType="java.lang.String">
+        select student_name from student where class_id = #{classId}
+    </select>
+</mapper>

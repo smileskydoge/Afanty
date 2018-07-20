@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.PackageResourceNoteMapper">
+
+    <sql id="Where_Clause">
+        <if test="packageClassId != null">
+            and package_class_id = #{packageClassId}
+        </if>
+        <if test="resourceId != null">
+            and resource_id = #{resourceId}
+        </if>
+        <if test="ids != null">
+            and id in
+            <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceIds != null">
+            and resource_id in
+            <foreach collection="resourceIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="childResourceIds != null">
+            and child_resource_id in
+            <foreach collection="childResourceIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="childResourceId != null">
+            and child_resource_id = #{childResourceId}
+        </if>
+        <if test="teacherShowFlag != null">
+            and teacher_show_flag = #{teacherShowFlag}
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.PackageResourceNoteQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from package_resource_note where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.PackageResourceNoteQuery"
+            resultType="java.lang.Integer">
+        select count(distinct resource_id)
+        from package_resource_note where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+
+    <select id="selectJoinResource" parameterType="com.booksroo.classroom.common.query.PackageResourceNoteQuery"
+            resultMap="BaseResultMap">
+        select pr.id, pr.package_class_id, pr.resource_id, pr.child_resource_id, pr.note_name, pr.note_type,
+        pr.note_content,
+        pr.del_flag, pr.create_time, pr.update_time
+        from package_resource_note pr, file_resources fr where pr.resource_id=fr.id
+        <if test="packageClassId != null">
+            and pr.package_class_id=#{packageClassId}
+        </if>
+        <if test="resourceType!=null">
+            and fr.resource_type=#{resourceType}
+        </if>
+        order by pr.id desc
+        limit ${start},${size}
+    </select>
+
+    <select id="countJoinResource" parameterType="com.booksroo.classroom.common.query.PackageResourceNoteQuery" resultType="java.lang.Integer">
+        select count(distinct pr.resource_id)
+        from package_resource_note pr, file_resources fr where pr.resource_id=fr.id
+        <if test="packageClassId != null">
+            and pr.package_class_id=#{packageClassId}
+        </if>
+        <if test="resourceType!=null">
+            and fr.resource_type=#{resourceType}
+        </if>
+    </select>
+
+    <update id="updateTeacherShowFlag">
+        update package_resource_note set teacher_show_flag=#{teacherShowFlag} where package_class_id=#{packageClassId} and resource_id=#{resourceId}
+    </update>
+
+</mapper>

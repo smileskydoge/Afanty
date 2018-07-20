@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #include("common/assets-link.html")
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+    #include("common/top.html")
+
+    #include("common/left.html")
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+
+        <div style="padding: 15px;">
+            <button id="addSchool" class="layui-btn layui-btn-sm">新增</button>
+            <!--<button class="layui-btn layui-btn-sm">导入</button>-->
+            <!--<button class="layui-btn layui-btn-sm">导出</button>-->
+            <button id="selectSchool" class="layui-btn layui-btn-sm">筛选</button>
+
+            <div id="selectDiv"  class="hiden">
+                <form class="layui-form" style="padding-top:15px;">
+                    <div class="layui-inline">
+                        <input style="width: 150px;height: 35px;" type="text" name="schoolName"
+                               placeholder="学校名称" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-inline">
+                        <input style="width: 150px;height: 35px;" type="text" name="area"
+                               placeholder="学校所属地区" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="select">查找</button>
+                    </div>
+                </form>
+            </div>
+            <table id="tb" lay-filter="demo"></table>
+        </div>
+    </div>
+
+    #include("common/foot.html")
+
+</div>
+<script src="/views/assets/js/kd/school.js"></script>
+</body>
+</html>

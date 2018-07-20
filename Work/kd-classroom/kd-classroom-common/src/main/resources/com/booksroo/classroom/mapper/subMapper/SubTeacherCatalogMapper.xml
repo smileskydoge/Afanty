@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.TeacherCatalogMapper">
+
+    <sql id="Where_Clause">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="teacherId != null">
+            and teacher_id = #{teacherId}
+        </if>
+        <if test="catalogName != null and catalogName != ''">
+            and catalog_name = #{catalogName}
+        </if>
+
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="select" parameterType="com.booksroo.classroom.common.query.TeacherCatalogQuery" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher_catalog where 1=1
+        <include refid="Where_Clause"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.TeacherCatalogQuery" resultType="java.lang.Integer">
+        select count(1)
+        from teacher_catalog where 1=1
+        <include refid="Where_Clause"/>
+    </select>
+</mapper>

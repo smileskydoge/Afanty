@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.booksroo.classroom.common.dao.TeacherMapper">
+
+    <select id="selectByUnique" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher
+        where mobile_no = #{mobileNo} and del_flag=0 limit 1
+    </select>
+
+    <sql id="where_teacher">
+        <if test="teacherName != null and teacherName != ''">
+            and teacher_name = #{teacherName}
+        </if>
+        <if test="mobileNo != null and mobileNo != ''">
+            and mobile_no = #{mobileNo}
+        </if>
+        <if test="subjectId != null and subjectId != ''">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="schoolId != null">
+            and school_id = #{schoolId}
+        </if>
+        <if test="jobTitle != null and jobTitle != ''">
+            and job_title = #{jobTitle}
+        </if>
+        <if test="delFlag != null">
+            and del_flag = #{delFlag}
+        </if>
+    </sql>
+
+    <sql id="admin_teacher">
+        <if test="teacherIds != null">
+            and id in
+            <foreach collection="teacherIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="teacherName != null and teacherName != ''">
+            and teacher_name like "%"#{teacherName}"%"
+        </if>
+        <if test="mobileNo != null and mobileNo != ''">
+            and mobile_no like "%"#{mobileNo}"%"
+        </if>
+        <if test="subjectId != null and subjectId != ''">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="schoolId != null">
+            and school_id = #{schoolId}
+        </if>
+        <if test="jobTitle != null and jobTitle != ''">
+            and job_title = #{jobTitle}
+        </if>
+    </sql>
+
+    <sql id="Order_By">
+        <if test="orderByStr != null and orderByStr != ''">
+            order by ${orderByStr}
+        </if>
+        <if test="orderByStr == null or orderByStr == ''">
+            order by id desc
+        </if>
+    </sql>
+
+    <select id="queryTeacherList" parameterType="com.booksroo.classroom.common.query.TeacherQuery"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher
+        where 1=1
+        <include refid="admin_teacher"/>
+        <include refid="Order_By"/>
+        limit ${start},${size}
+    </select>
+
+    <select id="count" parameterType="com.booksroo.classroom.common.query.TeacherQuery" resultType="long">
+        select count(1)
+        from teacher
+        where 1=1
+        <include refid="admin_teacher"/>
+    </select>
+
+    <update id="updateStatus" parameterType="com.booksroo.classroom.common.domain.StatusDomain">
+    update teacher
+    set del_flag = #{delFlag,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+    </update>
+
+</mapper>
