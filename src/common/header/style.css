@@ -1,0 +1,47 @@
+.header-view{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:106px;
+    background:rgba(0,0,0,0.6);
+    z-index:999999;
+}
+
+.company-name{
+    font-size:40px;
+    font-style:oblique;
+    font-family:fantasy;
+    color:#fff;
+    position:relative;
+    top:30px;
+    left:30px;
+}
+
+.head-ul{
+    display:inline;
+    float:right;
+    
+    width:500px;
+    height:106px;
+}
+
+.head-li{
+    display:inline-block;
+    height:106px;
+    color: #fff;
+    font-size:20px;
+    line-height:100px;
+    margin:0 10px;
+    cursor:pointer;
+}
+
+.head-li-active{
+    display:inline-block;
+    height:106px;
+    color: blue;
+    font-size:20px;
+    line-height:100px;
+    margin:0 10px;
+    cursor:pointer;
+}
